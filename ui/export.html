@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<title>Export to PDF</title>
+<!-- Document styles (markdown.css, syntax.css, export-page.css) are handed to Paged.js by
+     js/export.js; only the window chrome is linked here. The content is always light. -->
+<link rel="stylesheet" href="css/export.css">
+<script type="module" src="js/export.js"></script>
+</head>
+<body>
+<div class="ex-app">
+  <aside class="ex-panel" aria-label="Export settings">
+    <header class="ex-head">
+      <h1 class="ex-h1">Export to PDF</h1>
+      <p class="ex-source" id="ex-source" title=""></p>
+    </header>
+
+    <form class="ex-form" id="ex-form" autocomplete="off">
+      <section class="ex-group">
+        <h2 class="ex-h2">Document</h2>
+        <label class="ex-field">
+          <span class="ex-label">Title</span>
+          <input type="text" id="opt-title" name="title" spellcheck="false">
+        </label>
+        <label class="ex-check"><input type="checkbox" id="opt-cover" name="cover"> Cover page with title and date</label>
+      </section>
+
+      <section class="ex-group">
+        <h2 class="ex-h2">Table of contents</h2>
+        <label class="ex-check"><input type="checkbox" id="opt-toc" name="toc"> Include table of contents</label>
+        <div class="ex-sub" id="toc-options">
+          <label class="ex-check folder-only"><input type="checkbox" id="opt-toc-folders" name="tocFolders"> Show folders</label>
+          <div class="ex-field">
+            <div class="ex-label-row">
+              <span class="ex-label" id="toc-depth-label">Depth</span>
+              <output class="ex-value" id="toc-depth-value" for="opt-toc-depth"></output>
+            </div>
+            <input type="range" id="opt-toc-depth" name="tocDepth" min="0" max="6" step="1" aria-labelledby="toc-depth-label">
+            <div class="ex-ticks" aria-hidden="true" id="toc-ticks"></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="ex-group">
+        <h2 class="ex-h2">Page</h2>
+        <div class="ex-row">
+          <label class="ex-field">
+            <span class="ex-label">Size</span>
+            <select id="opt-page-size" name="pageSize">
+              <option value="A4">A4</option>
+              <option value="Letter">Letter</option>
+              <option value="A5">A5</option>
+              <option value="Legal">Legal</option>
+            </select>
+          </label>
+          <label class="ex-field">
+            <span class="ex-label">Margins</span>
+            <select id="opt-margins" name="margins">
+              <option value="narrow">Narrow</option>
+              <option value="normal">Normal</option>
+              <option value="wide">Wide</option>
+            </select>
+          </label>
+        </div>
+        <div class="ex-row">
+          <div class="ex-field">
+            <span class="ex-label" id="orient-label">Orientation</span>
+            <div class="ex-seg" role="radiogroup" aria-labelledby="orient-label">
+              <label><input type="radio" name="orientation" value="portrait"><span>Portrait</span></label>
+              <label><input type="radio" name="orientation" value="landscape"><span>Landscape</span></label>
+            </div>
+          </div>
+          <label class="ex-field">
+            <span class="ex-label">Text size</span>
+            <select id="opt-font-size" name="fontSize">
+              <option value="9">9 pt</option>
+              <option value="10">10 pt</option>
+              <option value="10.5">10.5 pt</option>
+              <option value="11">11 pt</option>
+              <option value="12">12 pt</option>
+              <option value="13">13 pt</option>
+              <option value="14">14 pt</option>
+            </select>
+          </label>
+        </div>
+      </section>
+
+      <section class="ex-group">
+        <h2 class="ex-h2">Layout</h2>
+        <label class="ex-check folder-only"><input type="checkbox" id="opt-new-page" name="newPage"> Start each file on a new page</label>
+        <label class="ex-check"><input type="checkbox" id="opt-header" name="header"> Running header with titles</label>
+        <label class="ex-check"><input type="checkbox" id="opt-page-numbers" name="pageNumbers"> Page numbers</label>
+      </section>
+    </form>
+
+    <footer class="ex-foot">
+      <div class="ex-status" id="ex-status" role="status" aria-live="polite"></div>
+      <div class="ex-done" id="ex-done" hidden>
+        <div class="ex-done-text" id="ex-done-text"></div>
+        <div class="ex-done-actions">
+          <button type="button" class="ex-btn ex-btn-small" id="btn-open">Open</button>
+          <button type="button" class="ex-btn ex-btn-small" id="btn-reveal">Show in Finder</button>
+        </div>
+      </div>
+      <div class="ex-actions">
+        <button type="button" class="ex-btn" id="btn-close">Close</button>
+        <button type="button" class="ex-btn ex-btn-primary" id="btn-export" disabled>Export PDF…</button>
+      </div>
+    </footer>
+  </aside>
+
+  <main class="ex-preview" aria-label="Preview">
+    <div class="ex-bar">
+      <span class="ex-count" id="ex-count"></span>
+      <span class="ex-busy" id="ex-busy" hidden><span class="ex-spinner" aria-hidden="true"></span><span id="ex-busy-text">Updating…</span></span>
+      <div class="ex-zoom" role="group" aria-label="Zoom">
+        <button type="button" class="ex-icon-btn" id="zoom-out" aria-label="Zoom out" title="Zoom out">−</button>
+        <button type="button" class="ex-zoom-value" id="zoom-fit" title="Fit to width">100%</button>
+        <button type="button" class="ex-icon-btn" id="zoom-in" aria-label="Zoom in" title="Zoom in">+</button>
+      </div>
+    </div>
+    <div class="ex-scroll" id="ex-scroll" tabindex="-1">
+      <div class="ex-sizer" id="ex-sizer">
+        <div class="ex-holder" id="ex-holder"></div>
+      </div>
+      <div class="ex-empty" id="ex-empty">
+        <div class="ex-spinner ex-spinner-big" aria-hidden="true"></div>
+        <p id="ex-empty-text">Preparing preview…</p>
+      </div>
+    </div>
+  </main>
+</div>
+<!-- Off-screen work areas: plugins render here, and Paged.js paginates here before the result
+     replaces the visible preview. -->
+<div class="ex-stage ex-offscreen" id="ex-stage" aria-hidden="true"></div>
+<div class="ex-host ex-offscreen" id="ex-host" aria-hidden="true"></div>
+</body>
+</html>

@@ -1,0 +1,160 @@
+/* MD Reader — paged-media styles for the PDF export.
+   Fed to Paged.js together with markdown.css + syntax.css (after them), plus a small generated
+   stylesheet with the page size, margins, running header and font size (export-build.js).
+   Everything here only styles the paginated content, never the export window chrome. */
+
+/* ------------------------------------------------------------ margin boxes */
+@page {
+  @top-left {
+    font: 7.5pt/1.2 -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+    color: #6e7781;
+    vertical-align: bottom;
+    padding-bottom: 5mm;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  @top-right {
+    font: 7.5pt/1.2 -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+    color: #6e7781;
+    vertical-align: bottom;
+    text-align: right;
+    padding-bottom: 5mm;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  @bottom-center {
+    font: 8pt/1 -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+    color: #6e7781;
+    vertical-align: top;
+    padding-top: 5mm;
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+/* ------------------------------------------------------------ documents */
+.ex-doc.markdown-body {
+  max-width: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  font-size: var(--ex-font-size, 10.5pt) !important;
+  line-height: 1.55;
+  color: #1f2328;
+  background: transparent;
+}
+.ex-doc-path {
+  margin: 0 0 1.2em;
+  font-size: 0.78em;
+  color: #6e7781;
+  letter-spacing: 0.01em;
+  break-after: avoid;
+}
+.ex-doc.markdown-body > .ex-doc-path + * { margin-top: 0 !important; }
+.ex-doc.markdown-body h1 { margin-top: 0.4em; }
+.ex-doc.markdown-body h1, .ex-doc.markdown-body h2, .ex-doc.markdown-body h3,
+.ex-doc.markdown-body h4, .ex-doc.markdown-body h5, .ex-doc.markdown-body h6 {
+  break-after: avoid;
+  break-inside: avoid;
+}
+.ex-doc.markdown-body .anchor, .ex-doc.markdown-body .code-copy { display: none !important; }
+.ex-doc.markdown-body pre, .ex-doc.markdown-body pre code {
+  white-space: pre-wrap !important;
+  word-break: break-word;
+  overflow: visible !important;
+}
+.ex-doc.markdown-body pre { font-size: 0.86em; }
+.ex-doc.markdown-body .table-wrap { overflow: visible !important; }
+.ex-doc.markdown-body table { max-width: 100%; }
+.ex-doc.markdown-body img, .ex-doc.markdown-body svg, .ex-doc.markdown-body video {
+  max-width: 100%;
+  max-height: 230mm;
+  object-fit: contain;
+  break-inside: avoid;
+}
+.ex-doc.markdown-body img { filter: none !important; cursor: default; }
+.ex-doc.markdown-body .spoiler { filter: none !important; }
+.ex-doc.markdown-body a { text-decoration: none; }
+.ex-doc.markdown-body .katex-display, .ex-doc.markdown-body .math-display { overflow: visible !important; }
+.ex-doc.markdown-body .mermaid-diagram { break-inside: avoid; text-align: center; }
+.ex-doc.markdown-body details > summary { list-style: none; }
+.export-error { color: #d1242f; font-style: italic; }
+
+/* ------------------------------------------------------------ cover */
+.ex-cover {
+  page: cover;
+  break-after: page;
+  height: 100%;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", system-ui, sans-serif;
+  color: #1f2328;
+}
+.ex-cover-inner {
+  box-sizing: border-box;
+  padding: 38% 14% 0;
+}
+.ex-cover-title {
+  margin: 0 0 0.35em;
+  font-size: 30pt;
+  line-height: 1.12;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  border: 0;
+  padding-bottom: 0.3em;
+  border-bottom: 2.5pt solid #1f2328;
+}
+.ex-cover-sub { margin: 0.8em 0 0; font-size: 12pt; color: #59636e; }
+.ex-cover-date { margin: 0.4em 0 0; font-size: 11pt; color: #59636e; }
+
+/* ------------------------------------------------------------ table of contents */
+.ex-toc {
+  page: toc;
+  break-after: page;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  font-size: var(--ex-font-size, 10.5pt);
+  line-height: 1.35;
+  color: #1f2328;
+}
+.ex-toc-title {
+  margin: 0 0 1.1em;
+  font-size: 1.9em;
+  font-weight: 700;
+  letter-spacing: -0.015em;
+}
+.ex-toc-entry { margin: 0; padding-left: calc(var(--lvl, 0) * 1.25em); break-inside: avoid; }
+.ex-toc-entry a {
+  display: flex;
+  align-items: baseline;
+  color: inherit;
+  text-decoration: none;
+}
+.ex-toc-text { flex: 0 1 auto; }
+.ex-toc-leader {
+  flex: 1 1 auto;
+  min-width: 1.5em;
+  margin: 0 0.35em;
+  border-bottom: 1px dotted #8c959f;
+  transform: translateY(-0.28em);
+}
+.ex-toc-pg {
+  flex: 0 0 auto;
+  min-width: 2.2em;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+.ex-toc-folder {
+  margin-top: 0.9em;
+  font-weight: 700;
+  font-size: 0.82em;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: #59636e;
+  break-after: avoid;
+}
+.ex-toc-folder a { color: inherit; }
+.ex-toc-file { margin-top: 0.45em; font-weight: 600; }
+.ex-toc-folder + .ex-toc-file { margin-top: 0.3em; }
+.ex-toc-heading { margin-top: 0.12em; font-weight: 400; }
+.ex-toc-heading .ex-toc-text { color: #3d444d; }
+/* Single-file ToC: top level entries are headings, give them a bit more weight. */
+.ex-toc-heading.ex-toc-l0 { margin-top: 0.4em; font-weight: 600; }
+.ex-toc-heading.ex-toc-l0 .ex-toc-text { color: inherit; }

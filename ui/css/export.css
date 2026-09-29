@@ -1,0 +1,335 @@
+/* MD Reader — PDF export window chrome (settings panel + scaled page preview) and the print
+   rules that make the printed output exactly the Paged.js pages.
+   Chrome follows the system appearance; the document itself is always light
+   (<html data-theme="light">). The paginated content is styled by export-page.css. */
+
+:root {
+  --ex-font: -apple-system, BlinkMacSystemFont, "Segoe UI Variable Text", "Segoe UI", system-ui, sans-serif;
+  --ex-panel-w: 318px;
+  --ex-bg: #f6f7f9;
+  --ex-panel: #fbfbfc;
+  --ex-text: #1f2328;
+  --ex-muted: #656d76;
+  --ex-border: #d8dee4;
+  --ex-field: #ffffff;
+  --ex-field-border: #c9d1d9;
+  --ex-accent: #0969da;
+  --ex-accent-text: #ffffff;
+  --ex-focus: rgba(9, 105, 218, 0.35);
+  --ex-preview-bg: #e4e6ea;
+  --ex-seg-bg: #eceef1;
+  --ex-seg-on: #ffffff;
+  --ex-ok: #1a7f37;
+  --ex-err: #cf222e;
+  --ex-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 6px 18px rgba(0, 0, 0, 0.1);
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --ex-bg: #1c1e22;
+    --ex-panel: #202328;
+    --ex-text: #e4e7eb;
+    --ex-muted: #9aa1ab;
+    --ex-border: #33373e;
+    --ex-field: #2a2d33;
+    --ex-field-border: #41464e;
+    --ex-accent: #3b8bf0;
+    --ex-focus: rgba(76, 154, 255, 0.4);
+    --ex-preview-bg: #141518;
+    --ex-seg-bg: #2a2d33;
+    --ex-seg-on: #41464e;
+    --ex-ok: #3fb950;
+    --ex-err: #f85149;
+    --ex-shadow: 0 1px 3px rgba(0, 0, 0, 0.5), 0 8px 24px rgba(0, 0, 0, 0.45);
+  }
+}
+
+@media screen {
+  html, body { height: 100%; margin: 0; }
+  body {
+    font: 13px/1.4 var(--ex-font);
+    color: var(--ex-text);
+    background: var(--ex-bg);
+    overflow: hidden;
+    -webkit-font-smoothing: antialiased;
+    -webkit-user-select: none;
+    user-select: none;
+    cursor: default;
+  }
+
+  [hidden] { display: none !important; }
+  .ex-app { display: flex; height: 100vh; }
+
+  /* ---------------------------------------------------------- settings panel */
+  .ex-panel {
+    flex: 0 0 var(--ex-panel-w);
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    background: var(--ex-panel);
+    border-right: 1px solid var(--ex-border);
+  }
+  .ex-head { padding: 18px 20px 10px; }
+  .ex-h1 { margin: 0; font-size: 17px; font-weight: 650; letter-spacing: -0.01em; }
+  .ex-source {
+    margin: 3px 0 0;
+    color: var(--ex-muted);
+    font-size: 12px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .ex-form { flex: 1 1 auto; overflow-y: auto; padding: 2px 20px 12px; }
+  .ex-group { padding: 12px 0 14px; border-top: 1px solid var(--ex-border); }
+  .ex-group:first-child { border-top: 0; padding-top: 6px; }
+  .ex-h2 {
+    margin: 0 0 10px;
+    font-size: 11px;
+    font-weight: 650;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--ex-muted);
+  }
+  .ex-field { display: flex; flex-direction: column; gap: 5px; margin: 0 0 10px; min-width: 0; }
+  .ex-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .ex-row .ex-field { margin-bottom: 10px; }
+  .ex-label { font-size: 12px; color: var(--ex-muted); }
+  .ex-label-row { display: flex; justify-content: space-between; align-items: baseline; }
+  .ex-value { font-size: 12px; font-weight: 600; color: var(--ex-text); }
+
+  input[type="text"], select {
+    box-sizing: border-box;
+    width: 100%;
+    height: 28px;
+    padding: 0 8px;
+    font: inherit;
+    color: var(--ex-text);
+    background: var(--ex-field);
+    border: 1px solid var(--ex-field-border);
+    border-radius: 6px;
+    outline: none;
+    -webkit-user-select: text;
+    user-select: text;
+  }
+  select { padding-right: 4px; }
+  input[type="text"]:focus-visible, select:focus-visible, .ex-btn:focus-visible, .ex-seg input:focus-visible + span,
+  input[type="checkbox"]:focus-visible, input[type="range"]:focus-visible {
+    box-shadow: 0 0 0 3px var(--ex-focus);
+    border-color: var(--ex-accent);
+    outline: none;
+  }
+
+  .ex-check { display: flex; align-items: center; gap: 8px; margin: 0 0 8px; line-height: 1.3; }
+  .ex-check input { margin: 0; flex: 0 0 auto; accent-color: var(--ex-accent); }
+  .ex-sub { margin: 4px 0 0 0; padding: 8px 0 0; transition: opacity 0.15s; }
+  .ex-sub.is-disabled { opacity: 0.45; pointer-events: none; }
+  body:not(.is-folder) .folder-only { display: none; }
+
+  input[type="range"] { width: 100%; margin: 2px 0 0; accent-color: var(--ex-accent); }
+  .ex-ticks {
+    display: flex;
+    justify-content: space-between;
+    padding: 0 3px;
+    font-size: 10px;
+    color: var(--ex-muted);
+    font-variant-numeric: tabular-nums;
+  }
+  .ex-ticks span { width: 1.6em; text-align: center; }
+  .ex-ticks span:first-child { text-align: left; }
+  .ex-ticks span:last-child { text-align: right; }
+
+  .ex-seg {
+    display: flex;
+    padding: 2px;
+    border-radius: 7px;
+    background: var(--ex-seg-bg);
+    height: 24px;
+  }
+  .ex-seg label { flex: 1 1 0; position: relative; }
+  .ex-seg input { position: absolute; opacity: 0; pointer-events: none; }
+  .ex-seg span {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    border-radius: 5px;
+    font-size: 12px;
+    color: var(--ex-muted);
+  }
+  .ex-seg input:checked + span { background: var(--ex-seg-on); color: var(--ex-text); box-shadow: 0 1px 2px rgba(0, 0, 0, 0.12); }
+
+  /* ---------------------------------------------------------- footer */
+  .ex-foot { padding: 12px 20px 16px; border-top: 1px solid var(--ex-border); }
+  .ex-status { min-height: 18px; margin-bottom: 10px; font-size: 12px; color: var(--ex-muted); overflow-wrap: anywhere; }
+  .ex-status.is-error { color: var(--ex-err); -webkit-user-select: text; user-select: text; }
+  .ex-done {
+    margin: 0 0 12px;
+    padding: 10px 12px;
+    border-radius: 8px;
+    border: 1px solid color-mix(in srgb, var(--ex-ok) 35%, transparent);
+    background: color-mix(in srgb, var(--ex-ok) 9%, transparent);
+  }
+  .ex-done-text { font-size: 12px; margin-bottom: 8px; overflow-wrap: anywhere; }
+  .ex-done-text strong { color: var(--ex-ok); }
+  .ex-done-actions { display: flex; gap: 8px; }
+  .ex-actions { display: flex; justify-content: flex-end; gap: 8px; }
+  .ex-btn {
+    height: 30px;
+    padding: 0 14px;
+    font: inherit;
+    font-weight: 550;
+    color: var(--ex-text);
+    background: var(--ex-field);
+    border: 1px solid var(--ex-field-border);
+    border-radius: 7px;
+    cursor: default;
+  }
+  .ex-btn:hover:not(:disabled) { filter: brightness(0.97); }
+  .ex-btn:active:not(:disabled) { filter: brightness(0.93); }
+  .ex-btn:disabled { opacity: 0.5; }
+  .ex-btn-primary { background: var(--ex-accent); border-color: var(--ex-accent); color: var(--ex-accent-text); }
+  .ex-btn-small { height: 26px; padding: 0 10px; font-size: 12px; }
+
+  /* ---------------------------------------------------------- preview */
+  .ex-preview { flex: 1 1 auto; display: flex; flex-direction: column; min-width: 0; background: var(--ex-preview-bg); }
+  .ex-bar {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    height: 38px;
+    padding: 0 14px;
+    border-bottom: 1px solid var(--ex-border);
+    background: var(--ex-bg);
+    font-size: 12px;
+    color: var(--ex-muted);
+  }
+  .ex-count { font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .ex-busy { display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; overflow: hidden; }
+  .ex-zoom { margin-left: auto; display: flex; align-items: center; gap: 2px; }
+  .ex-icon-btn, .ex-zoom-value {
+    height: 24px;
+    min-width: 24px;
+    padding: 0 6px;
+    font: inherit;
+    font-size: 13px;
+    color: var(--ex-text);
+    background: transparent;
+    border: 0;
+    border-radius: 5px;
+  }
+  .ex-zoom-value { min-width: 48px; font-size: 12px; font-variant-numeric: tabular-nums; }
+  .ex-icon-btn:hover, .ex-zoom-value:hover { background: var(--ex-seg-bg); }
+
+  .ex-scroll { position: relative; flex: 1 1 auto; overflow: auto; padding: 24px 24px 40px; }
+  .ex-sizer { margin: 0 auto; position: relative; transition: opacity 0.15s; }
+  .ex-sizer.is-stale { opacity: 0.45; }
+  .ex-holder { transform-origin: 0 0; position: absolute; top: 0; left: 0; }
+  .ex-holder .pagedjs_pages { display: flex; flex-direction: column; gap: 18px; }
+  .ex-holder .pagedjs_page {
+    background: #fff;
+    box-shadow: var(--ex-shadow);
+    flex: none;
+  }
+  .ex-holder a { cursor: pointer; }
+
+  .ex-empty {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    color: var(--ex-muted);
+    font-size: 13px;
+    text-align: center;
+    padding: 24px;
+  }
+  .ex-empty.is-error { color: var(--ex-err); -webkit-user-select: text; user-select: text; }
+  .ex-empty.is-error .ex-spinner { display: none; }
+
+  .ex-spinner {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    border: 2px solid color-mix(in srgb, currentColor 25%, transparent);
+    border-top-color: currentColor;
+    animation: ex-spin 0.8s linear infinite;
+    flex: none;
+  }
+  .ex-spinner-big { width: 22px; height: 22px; }
+  @keyframes ex-spin { to { transform: rotate(360deg); } }
+
+  /* Off-screen work areas: laid out at 100% (Paged.js measures real sizes), never visible. */
+  .ex-offscreen {
+    position: absolute;
+    left: -30000px;
+    top: 0;
+    visibility: hidden;
+    pointer-events: none;
+    contain: layout style;
+  }
+  .ex-stage { width: 170mm; }
+}
+
+/* ------------------------------------------------------------ printing
+   The native print uses paper of exactly the page size with zero margins; Paged.js' own print
+   styles turn each .pagedjs_page into one sheet. Here we only strip the window chrome and
+   the preview scaling. */
+@media print {
+  html, html body {
+    margin: 0 !important;
+    padding: 0 !important;
+    background: #fff !important;
+    overflow: visible !important;
+    width: auto !important;
+    height: auto !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    min-height: 0 !important;
+    max-height: none !important;
+  }
+  .ex-panel, .ex-bar, .ex-empty, .ex-offscreen { display: none !important; }
+  .ex-app, .ex-preview, .ex-scroll, .ex-sizer {
+    display: block !important;
+    position: static !important;
+    overflow: visible !important;
+    width: auto !important;
+    height: auto !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: none !important;
+    opacity: 1 !important;
+    border: 0 !important;
+  }
+  .ex-holder {
+    position: static !important;
+    transform: none !important;
+    width: auto !important;
+  }
+  /* Paged.js' print styles size pages with height:100%, which WebKit resolves against its
+     print layout height, not the sheet. Use the exact page box instead: WebKit then cuts the
+     document every page-height px (see pagePx() in export-build.js). */
+  .ex-holder .pagedjs_pages {
+    display: block !important;
+    gap: 0 !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+  }
+  .ex-holder .pagedjs_page, .ex-holder .pagedjs_sheet {
+    height: var(--pagedjs-height) !important;
+    min-height: var(--pagedjs-height) !important;
+    max-height: var(--pagedjs-height) !important;
+  }
+  .ex-holder .pagedjs_page {
+    box-shadow: none !important;
+    margin: 0 !important;
+    overflow: hidden !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+    break-after: page !important;
+    page-break-after: always !important;
+  }
+  .ex-holder .pagedjs_page:last-child { break-after: auto !important; page-break-after: auto !important; }
+}
