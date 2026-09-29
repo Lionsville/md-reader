@@ -64,7 +64,6 @@ fn options(id_prefix: &str) -> Options<'static> {
     let mut o = Options::default();
     let e = &mut o.extension;
     e.strikethrough = true;
-    e.tagfilter = false;
     e.table = true;
     e.autolink = true;
     e.tasklist = true;

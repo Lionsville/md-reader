@@ -13,7 +13,6 @@ import * as api from './api.js';
 import { prepareDocs, tocEntries, tocHtml, coverHtml, pageCss, pageSizeMm, pagePx, escapeHtml, dirname } from './export-build.js';
 import { loadPaged, paginate, Cancelled, makeLocator, fillTocNumbers, outlineItems } from './export-paginate.js';
 
-const invoke = window.__TAURI__.core.invoke;
 const $ = (id) => document.getElementById(id);
 
 const PATH = api.params.get('path') || '';
@@ -257,7 +256,7 @@ async function init() {
   let bundle;
   try {
     showEmpty(MODE === 'folder' ? 'Reading folder…' : 'Reading file…');
-    bundle = await invoke('build_export', { path: PATH, mode: MODE });
+    bundle = await api.buildExport(PATH, MODE);
   } catch (e) {
     showEmpty(String(e), true);
     setStatus('Could not read ' + name, 'error');
@@ -588,7 +587,7 @@ async function doExport() {
   document.body.classList.add('is-exporting');
   const [w, h] = cur.sizeMm;
   try {
-    const res = await invoke('print_to_pdf', {
+    const res = await api.printToPdf({
       outPath: out,
       pageWidthMm: w,
       pageHeightMm: h,

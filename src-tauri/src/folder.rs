@@ -20,24 +20,6 @@ pub struct FolderNode {
     pub children: Vec<FolderNode>,
 }
 
-impl FolderNode {
-    /// Depth-first list of all markdown files, in display order.
-    pub fn files(&self) -> Vec<&FolderNode> {
-        let mut out = Vec::new();
-        fn walk<'a>(n: &'a FolderNode, out: &mut Vec<&'a FolderNode>) {
-            for c in &n.children {
-                if c.is_dir {
-                    walk(c, out);
-                } else {
-                    out.push(c);
-                }
-            }
-        }
-        walk(self, &mut out);
-        out
-    }
-}
-
 pub fn scan(root: &Path) -> FolderNode {
     let mut budget = MAX_ENTRIES;
     let children = scan_dir(root, 0, &mut budget);

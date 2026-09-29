@@ -16,6 +16,12 @@ export const watchPath = (path) => invoke('watch_path', { path });
 export const appInfo = () => invoke('app_info');
 /** @returns {Promise<{id:string, file:string, url:string}[]>} user plugins */
 export const pluginList = () => invoke('plugin_list');
+/** Renders every doc for export; emits `export-progress` {done,total} to this window.
+ * @returns {Promise<{title:string, rootPath:string, mode:string, docs:{index:number, path:string, relPath:string, title:string, depth:number, dirTrail:string[], prefix:string, html:string, headings:any[], error?:string}[]}>} */
+export const buildExport = (path, mode) => invoke('build_export', { path, mode });
+/** Prints this window's webview to a PDF, then adds bookmarks + title. Resolves once the file is written.
+ * @returns {Promise<{path:string, pages:number, warning?:string}>} */
+export const printToPdf = (opts /* {outPath, pageWidthMm, pageHeightMm, title?, outline?:[{title,level,page,y}]} */) => invoke('print_to_pdf', opts);
 
 export const listen = (event, cb) => T.event.listen(event, (e) => cb(e.payload), { target: { kind: 'WebviewWindow', label: currentWindow().label } });
 export const currentWindow = () => T.window.getCurrentWindow();

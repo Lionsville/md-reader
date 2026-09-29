@@ -18,7 +18,8 @@ ui/
   css/app.css           reader chrome            (UI)
   css/markdown.css      document content styles — shared by reader + export (UI owns)
   css/syntax.css        generated code colors (cargo run --example gen_syntax_css)
-  css/export.css        export window + paged-media styles (export)
+  css/export.css        export window chrome (export)
+  css/export-page.css   paged-media styles handed to Paged.js (export)
   js/theme.js           sync theme bootstrap (sets <html data-theme="light|dark">)
   js/api.js             ALL Rust calls go through here
   js/app.js …           reader logic (UI)
@@ -48,8 +49,8 @@ src-tauri/src/
 | `watch_path` | `path` | watches file (via its dir) or folder (recursive); emits `fs-changed` (string[] paths) to the calling window |
 | `app_info` | – | `{platform:'macos'|'windows'|'linux', version, urlPrefix, pluginsDir}` |
 | `plugin_list` | – | user plugin files `[{id, file, url}]` from `<config>/plugins/*.js` |
-| `build_export` | `path, mode` | export bundle (export package defines) |
-| `print_to_pdf` | defined by export package | prints the *calling* webview to a PDF file |
+| `build_export` | `path, mode` | `{title, rootPath, mode, docs:[{index, path, relPath, title, depth, dirTrail, prefix:'d{i}-', html, headings, error?}]}`; emits `export-progress` `{done,total}` |
+| `print_to_pdf` | `outPath, pageWidthMm, pageHeightMm, title?, outline?:[{title,level,page,y}]` | prints the *calling* webview to a PDF (WKWebView NSPrintOperation / WebView2 PrintToPdf), then lopdf adds bookmarks + Title; `{path, pages, warning?}` |
 
 ## Window URLs
 - Reader: `index.html?path=<abs path to file or folder>`; no `path` → welcome screen.
