@@ -29,10 +29,10 @@
   "bundle": {
     "active": true,
     "targets": "all",
-    "publisher": "Lionsville",
+    "publisher": "Lionsville Group BV",
     "homepage": "https://lionsville.nl/md-reader",
-    "copyright": "Copyright © 2026 Lionsville. MIT License.",
-    "license": "MIT",
+    "copyright": "Copyright © 2024–2026 Lionsville Group BV. AGPL-3.0-only.",
+    "license": "AGPL-3.0-only",
     "category": "Productivity",
     "shortDescription": "Fast native markdown reader",
     "longDescription": "MD Reader is a super-fast, native markdown reader for macOS and Windows. Open a single file or a whole folder of notes and documentation, with GitHub-flavoured markdown, syntax highlighting, math, Mermaid diagrams, live reload and PDF export.",

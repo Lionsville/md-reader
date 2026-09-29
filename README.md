@@ -58,7 +58,7 @@ Finder service and the Windows context-menu entries.
 
 ## Plugins
 
-Rendering extras (Mermaid, math, callouts, TOC, diff colouring) are plugins; you can switch them
+Rendering extras (Mermaid, math, callouts, TOC, diff colouring, Lionsville business cases) are plugins; you can switch them
 off or drop your own `.js` plugin into the plugins folder. See **[docs/PLUGINS.md](docs/PLUGINS.md)**.
 
 ## Build from source
@@ -99,4 +99,4 @@ performance rules.
 
 ## License
 
-[MIT](LICENSE) © 2026 Lionsville
+[AGPL-3.0-only](LICENSE) © 2024–2026 Lionsville Group BV

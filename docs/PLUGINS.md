@@ -25,9 +25,35 @@ its selector finds something, and a heavy library only when there is something t
 | `callouts` | Obsidian-style callouts: `> [!info]`, `> [!todo]`, `> [!success]`, `> [!question]`, `> [!failure]`, `> [!danger]`, `> [!bug]`, `> [!example]`, `> [!quote]`, … with an optional title. `-` / `+` after the type makes it foldable (collapsed / expanded) — this also works for the GitHub types. | `> [!faq]- Why?` |
 | `toc` | Replaces a paragraph that contains only a TOC marker with a linked, nested table of contents of the document's headings (a single leading `# Title` is left out). | `[TOC]`, `[[_TOC_]]`, `[[TOC]]`, `${toc}` |
 | `diff` | GitHub-style full-line colors for diffs: additions, deletions, hunk headers, file headers. | ```` ```diff ````, ```` ```patch ```` |
+| `business-case` | Lionsville Architecture business cases: computes net and cumulative cash flow, NPV (period 0 undiscounted), IRR, payback, ROI, benefit-cost ratio and a weighted 1–5 scorecard from the tables you type. Labels follow the system language (English, Dutch, German). See the format below. | ```` ```business-case ```` |
 
 GitHub alerts (`> [!NOTE]` … `> [!CAUTION]`), footnotes, task lists, emoji shortcodes and
 heading anchors are handled by the Rust renderer and need no plugin.
+
+### The `business-case` format
+
+Same format as in Lionsville Architecture (ADR-0009), so a block reads identically in both. Keys first
+(English, always), then **the first table is the money and the second is the scorecard**. The first column
+names a line, the other columns are periods; negative is money out, positive is money in, blank is zero.
+Numbers may be written as `415 000`, `1.200`, `€ -1,200.50` or `(1200)`.
+
+````markdown
+```business-case
+currency: EUR
+discount rate: 10%
+
+| Line       | Year 0   | Year 1 | Year 2  |
+| ---------- | -------- | ------ | ------- |
+| Investment | -415 000 |        |         |
+| Savings    |          | 25 000 | 125 000 |
+
+| Criterion               | Weight | Score |
+| ----------------------- | ------ | ----- |
+| Alignment with strategy | 3      | 4     |
+```
+````
+
+The arithmetic is covered by `tests/business-case.test.mjs` (`npm test`), which is a port of core's tests.
 
 ## Installing a plugin
 

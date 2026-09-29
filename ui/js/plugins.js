@@ -70,6 +70,13 @@ const BUILTINS = [
     selector: 'pre > code.language-diff, pre > code.language-patch',
     file: 'diff.js',
   },
+  {
+    id: 'business-case',
+    name: 'Business case',
+    description: 'Computes ```business-case blocks (Lionsville Architecture format): net and cumulative cash flow, NPV, IRR, payback, ROI, benefit-cost ratio and a weighted scorecard.',
+    selector: 'pre > code.language-business-case',
+    file: 'business-case.js',
+  },
 ];
 
 // ---------------------------------------------------------------------------------------------
