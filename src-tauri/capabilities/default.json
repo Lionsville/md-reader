@@ -2,7 +2,9 @@
   "$schema": "../gen/schemas/desktop-schema.json",
   "identifier": "default",
   "description": "Capabilities for reader and export windows",
-  "windows": ["*"],
+  "windows": [
+    "*"
+  ],
   "permissions": [
     "core:default",
     "core:window:allow-set-title",
@@ -15,6 +17,210 @@
     "dialog:allow-message",
     "opener:allow-open-url",
     "opener:allow-reveal-item-in-dir",
-    "opener:allow-open-path"
+    "core:window:allow-set-theme",
+    "core:window:allow-theme",
+    {
+      "identifier": "opener:allow-open-path",
+      "allow": [
+        {
+          "path": "$APPCONFIG/plugins"
+        },
+        {
+          "path": "$APPCONFIG/plugins/**"
+        },
+        {
+          "path": "**/*.pdf"
+        },
+        {
+          "path": "**/*.png"
+        },
+        {
+          "path": "**/*.jpg"
+        },
+        {
+          "path": "**/*.jpeg"
+        },
+        {
+          "path": "**/*.gif"
+        },
+        {
+          "path": "**/*.webp"
+        },
+        {
+          "path": "**/*.svg"
+        },
+        {
+          "path": "**/*.bmp"
+        },
+        {
+          "path": "**/*.tiff"
+        },
+        {
+          "path": "**/*.heic"
+        },
+        {
+          "path": "**/*.txt"
+        },
+        {
+          "path": "**/*.csv"
+        },
+        {
+          "path": "**/*.tsv"
+        },
+        {
+          "path": "**/*.json"
+        },
+        {
+          "path": "**/*.xml"
+        },
+        {
+          "path": "**/*.yaml"
+        },
+        {
+          "path": "**/*.yml"
+        },
+        {
+          "path": "**/*.toml"
+        },
+        {
+          "path": "**/*.log"
+        },
+        {
+          "path": "**/*.docx"
+        },
+        {
+          "path": "**/*.xlsx"
+        },
+        {
+          "path": "**/*.pptx"
+        },
+        {
+          "path": "**/*.odt"
+        },
+        {
+          "path": "**/*.ods"
+        },
+        {
+          "path": "**/*.odp"
+        },
+        {
+          "path": "**/*.rtf"
+        },
+        {
+          "path": "**/*.mp4"
+        },
+        {
+          "path": "**/*.mov"
+        },
+        {
+          "path": "**/*.webm"
+        },
+        {
+          "path": "**/*.mp3"
+        },
+        {
+          "path": "**/*.wav"
+        },
+        {
+          "path": "**/*.m4a"
+        },
+        {
+          "path": "**/*.PDF"
+        },
+        {
+          "path": "**/*.PNG"
+        },
+        {
+          "path": "**/*.JPG"
+        },
+        {
+          "path": "**/*.JPEG"
+        },
+        {
+          "path": "**/*.GIF"
+        },
+        {
+          "path": "**/*.WEBP"
+        },
+        {
+          "path": "**/*.SVG"
+        },
+        {
+          "path": "**/*.BMP"
+        },
+        {
+          "path": "**/*.TIFF"
+        },
+        {
+          "path": "**/*.HEIC"
+        },
+        {
+          "path": "**/*.TXT"
+        },
+        {
+          "path": "**/*.CSV"
+        },
+        {
+          "path": "**/*.TSV"
+        },
+        {
+          "path": "**/*.JSON"
+        },
+        {
+          "path": "**/*.XML"
+        },
+        {
+          "path": "**/*.YAML"
+        },
+        {
+          "path": "**/*.YML"
+        },
+        {
+          "path": "**/*.TOML"
+        },
+        {
+          "path": "**/*.LOG"
+        },
+        {
+          "path": "**/*.DOCX"
+        },
+        {
+          "path": "**/*.XLSX"
+        },
+        {
+          "path": "**/*.PPTX"
+        },
+        {
+          "path": "**/*.ODT"
+        },
+        {
+          "path": "**/*.ODS"
+        },
+        {
+          "path": "**/*.ODP"
+        },
+        {
+          "path": "**/*.RTF"
+        },
+        {
+          "path": "**/*.MP4"
+        },
+        {
+          "path": "**/*.MOV"
+        },
+        {
+          "path": "**/*.WEBM"
+        },
+        {
+          "path": "**/*.MP3"
+        },
+        {
+          "path": "**/*.WAV"
+        },
+        {
+          "path": "**/*.M4A"
+        }
+      ]
+    }
   ]
 }
