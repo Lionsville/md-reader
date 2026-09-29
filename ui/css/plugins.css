@@ -1,0 +1,123 @@
+/* Plugin manager dialog (loaded lazily by js/plugin-manager.js). Uses app.css tokens with fallbacks. */
+dialog.plugin-manager {
+  --pm-bg: var(--popup-bg, #fff);
+  --pm-text: var(--text, #1f2328);
+  --pm-muted: var(--muted, #6b7079);
+  --pm-border: var(--border, #e4e4e7);
+  --pm-accent: var(--accent, #0969da);
+  --pm-accent-fg: var(--accent-fg, #fff);
+  --pm-hover: var(--hover, rgba(0, 0, 0, 0.055));
+  --pm-err: #cf222e;
+  --pm-err-bg: rgba(207, 34, 46, 0.08);
+  width: min(620px, calc(100vw - 32px));
+  max-height: min(720px, calc(100vh - 48px));
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  color: var(--pm-text);
+  background: var(--pm-bg);
+  border: 1px solid var(--pm-border);
+  border-radius: 12px;
+  box-shadow: var(--shadow, 0 10px 30px rgba(0, 0, 0, 0.14), 0 1px 3px rgba(0, 0, 0, 0.1));
+  font: 13px/1.45 var(--font-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif);
+  overflow: hidden;
+}
+dialog.plugin-manager:not([open]) { display: none; }
+:root[data-theme="dark"] dialog.plugin-manager { --pm-err: #ff7b72; --pm-err-bg: rgba(255, 123, 114, 0.1); }
+dialog.plugin-manager::backdrop { background: var(--scrim, rgba(20, 22, 26, 0.35)); }
+
+.plugin-manager .pm-head {
+  display: flex; align-items: center; justify-content: space-between;
+  margin: 0; padding: 14px 18px 10px;
+  border-bottom: 1px solid var(--pm-border);
+}
+.plugin-manager h2 { margin: 0; font-size: 16px; font-weight: 650; }
+.plugin-manager h3 {
+  margin: 18px 0 6px; font-size: 11px; font-weight: 650; letter-spacing: 0.04em;
+  text-transform: uppercase; color: var(--pm-muted);
+}
+.plugin-manager .pm-close {
+  width: 26px; height: 26px; padding: 0; border: 0; border-radius: 6px;
+  background: none; color: var(--pm-muted); font-size: 13px; cursor: pointer;
+}
+.plugin-manager .pm-close:hover { background: var(--pm-hover); color: var(--pm-text); }
+
+.plugin-manager .pm-body { padding: 4px 18px 16px; overflow: auto; flex: 1 1 auto; }
+.plugin-manager .pm-intro { margin: 10px 0 0; color: var(--pm-muted); }
+
+.plugin-manager .pm-list { list-style: none; margin: 0; padding: 0; border: 1px solid var(--pm-border); border-radius: 8px; }
+.plugin-manager .pm-item { display: flex; gap: 14px; align-items: flex-start; padding: 10px 12px; }
+.plugin-manager .pm-item + .pm-item, .plugin-manager .pm-empty + .pm-item { border-top: 1px solid var(--pm-border); }
+.plugin-manager .pm-item.is-disabled .pm-name, .plugin-manager .pm-item.is-disabled .pm-desc { opacity: 0.55; }
+.plugin-manager .pm-text { flex: 1 1 auto; min-width: 0; }
+.plugin-manager .pm-name { font-weight: 600; }
+.plugin-manager .pm-desc { color: var(--pm-muted); margin-top: 1px; }
+.plugin-manager .pm-meta { color: var(--pm-muted); font-size: 11.5px; margin-top: 3px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.plugin-manager .pm-error {
+  margin: 6px 0 0; padding: 6px 8px; border-radius: 6px;
+  color: var(--pm-err); background: var(--pm-err-bg);
+  font: 11.5px/1.45 var(--font-mono, ui-monospace, Menlo, Consolas, monospace);
+  white-space: pre-wrap; word-break: break-word;
+}
+.plugin-manager .pm-badge {
+  display: inline-block; margin-left: 4px; padding: 0 6px; border-radius: 9px;
+  font-size: 10.5px; font-weight: 600; vertical-align: 1px;
+}
+.plugin-manager .pm-off { background: var(--pm-hover); color: var(--pm-muted); }
+.plugin-manager .pm-err { background: var(--pm-err-bg); color: var(--pm-err); }
+.plugin-manager .pm-empty { padding: 12px; color: var(--pm-muted); }
+.plugin-manager code {
+  font: 11.5px var(--font-mono, ui-monospace, Menlo, Consolas, monospace);
+  padding: 1px 4px; border-radius: 4px; background: var(--pm-hover);
+}
+.plugin-manager .pm-path { user-select: text; word-break: break-all; }
+
+.plugin-manager .pm-warning {
+  margin: 16px 0 0; padding: 8px 10px; border-radius: 8px;
+  background: color-mix(in srgb, #d4a72c 13%, transparent);
+  border: 1px solid color-mix(in srgb, #d4a72c 35%, transparent);
+}
+.plugin-manager .pm-howto { margin-top: 12px; }
+.plugin-manager .pm-howto summary { cursor: pointer; color: var(--pm-accent); user-select: none; }
+.plugin-manager .pm-howto p { margin: 8px 0; }
+.plugin-manager .pm-howto pre {
+  margin: 0 0 8px; padding: 10px 12px; max-height: 260px; overflow: auto;
+  border: 1px solid var(--pm-border); border-radius: 8px; background: var(--pm-hover);
+}
+.plugin-manager .pm-howto pre code { padding: 0; background: none; white-space: pre; }
+
+/* toggle switch */
+.plugin-manager .pm-switch { position: relative; flex: none; width: 34px; height: 20px; margin-top: 2px; cursor: pointer; }
+.plugin-manager .pm-switch input { position: absolute; inset: 0; opacity: 0; margin: 0; cursor: pointer; }
+.plugin-manager .pm-slider {
+  position: absolute; inset: 0; border-radius: 10px;
+  background: var(--border-strong, #c9ccd1); transition: background 0.15s; pointer-events: none;
+}
+.plugin-manager .pm-slider::after {
+  content: ""; position: absolute; top: 2px; left: 2px; width: 16px; height: 16px; border-radius: 50%;
+  background: #fff; box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3); transition: transform 0.15s;
+}
+.plugin-manager .pm-switch input:checked + .pm-slider { background: var(--pm-accent); }
+.plugin-manager .pm-switch input:checked + .pm-slider::after { transform: translateX(14px); }
+.plugin-manager .pm-switch input:focus-visible + .pm-slider { outline: 2px solid var(--focus, var(--pm-accent)); outline-offset: 2px; }
+
+.plugin-manager .pm-foot {
+  display: flex; align-items: center; gap: 8px; padding: 12px 18px;
+  border-top: 1px solid var(--pm-border);
+}
+.plugin-manager .pm-status { flex: 1 1 auto; color: var(--pm-muted); font-size: 12px; min-width: 0; }
+.plugin-manager .pm-btn {
+  padding: 5px 12px; border-radius: 6px; cursor: pointer;
+  font: inherit; font-weight: 500; color: var(--pm-text);
+  background: var(--pm-bg); border: 1px solid var(--border-strong, var(--pm-border));
+}
+.plugin-manager .pm-btn:hover { background: var(--pm-hover); }
+.plugin-manager .pm-btn:disabled { opacity: 0.6; cursor: default; }
+.plugin-manager .pm-btn.pm-primary { background: var(--pm-accent); border-color: var(--pm-accent); color: var(--pm-accent-fg); }
+.plugin-manager .pm-btn.pm-primary:hover { filter: brightness(1.08); }
+.plugin-manager button:focus-visible { outline: 2px solid var(--focus, var(--pm-accent)); outline-offset: 1px; }
+
+@media (max-width: 520px) {
+  .plugin-manager .pm-foot { flex-wrap: wrap; }
+  .plugin-manager .pm-status { flex-basis: 100%; }
+}
