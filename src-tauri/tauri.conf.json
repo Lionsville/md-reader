@@ -1,0 +1,42 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "MD Reader",
+  "version": "0.1.0",
+  "identifier": "nl.lionsville.mdreader",
+  "build": {
+    "frontendDist": "../ui",
+    "beforeDevCommand": "",
+    "beforeBuildCommand": "node scripts/vendor.mjs"
+  },
+  "app": {
+    "withGlobalTauri": true,
+    "windows": [],
+    "security": {
+      "csp": {
+        "default-src": "'self' mdr: http://mdr.localhost",
+        "img-src": "'self' mdr: http://mdr.localhost https: http: data: blob:",
+        "media-src": "'self' mdr: http://mdr.localhost https: http: data: blob:",
+        "style-src": "'self' 'unsafe-inline'",
+        "font-src": "'self' data:",
+        "script-src": "'self' blob: mdr: http://mdr.localhost",
+        "connect-src": "'self' ipc: http://ipc.localhost mdr: http://mdr.localhost"
+      },
+      "dangerousDisableAssetCspModification": [
+        "style-src"
+      ]
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": "all",
+    "category": "Productivity",
+    "shortDescription": "Fast native markdown reader",
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.icns",
+      "icons/icon.ico"
+    ]
+  }
+}

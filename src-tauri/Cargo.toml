@@ -1,0 +1,50 @@
+[package]
+name = "md-reader"
+version = "0.1.0"
+description = "A fast, native markdown reader"
+edition = "2021"
+rust-version = "1.80"
+
+[lib]
+name = "md_reader_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = [] }
+tauri-plugin-dialog = "2"
+tauri-plugin-opener = "2"
+tauri-plugin-single-instance = "2"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+comrak = { version = "0.55", default-features = false, features = ["shortcodes"] }
+syntect = { version = "5", default-features = false, features = ["default-onig"] }
+two-face = "0.5"
+ammonia = "4"
+notify = "8"
+percent-encoding = "2"
+once_cell = "1"
+lopdf = "0.38"
+
+[target.'cfg(target_os = "macos")'.dependencies]
+objc2 = "0.6"
+objc2-foundation = { version = "0.3", features = ["NSString", "NSURL", "NSDictionary", "NSGeometry", "NSValue"] }
+objc2-app-kit = { version = "0.3", features = ["NSPrintInfo", "NSPrintOperation", "NSView", "NSWindow", "NSResponder", "NSGraphics"] }
+objc2-web-kit = { version = "0.3", features = ["WKWebView", "objc2-app-kit"] }
+
+[target.'cfg(windows)'.dependencies]
+webview2-com = "0.39"
+windows = { version = "0.62", features = ["Win32_Foundation", "Win32_System_Com"] }
+windows-core = "0.62"
+
+[profile.release]
+codegen-units = 1
+lto = true
+opt-level = 3
+panic = "abort"
+strip = true
+
+[profile.dev.package."*"]
+opt-level = 2
