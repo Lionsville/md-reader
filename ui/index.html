@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<title>MD Reader</title>
+<script src="js/theme.js"></script>
+<link rel="stylesheet" href="css/app.css">
+<link rel="stylesheet" href="css/markdown.css">
+<link rel="stylesheet" href="css/syntax.css">
+<script type="module" src="js/app.js"></script>
+</head>
+<body>
+<header id="toolbar" class="toolbar" role="toolbar" aria-label="Document toolbar">
+  <div class="tb-group">
+    <button class="tb-btn" id="btn-sidebar" data-cmd="toggle-sidebar" aria-label="Toggle sidebar" aria-pressed="false" title="Toggle sidebar"></button>
+    <button class="tb-btn" id="btn-back" data-cmd="back" aria-label="Back" title="Back" disabled></button>
+    <button class="tb-btn" id="btn-forward" data-cmd="forward" aria-label="Forward" title="Forward" disabled></button>
+  </div>
+  <nav id="crumbs" class="crumbs" aria-label="Location"></nav>
+  <div class="tb-group">
+    <button class="tb-btn" id="btn-find" data-cmd="find" aria-label="Find in document" title="Find"></button>
+    <button class="tb-btn" id="btn-outline" data-cmd="toggle-outline" aria-label="Toggle outline" aria-pressed="false" title="Toggle outline"></button>
+    <button class="tb-btn" id="btn-export" data-cmd="export-menu" aria-label="Export to PDF" aria-haspopup="menu" title="Export to PDF"></button>
+    <button class="tb-btn" id="btn-theme" data-cmd="theme-menu" aria-haspopup="menu" aria-label="Theme" title="Theme"></button>
+    <button class="tb-btn" id="btn-plugins" data-cmd="manage-plugins" aria-label="Plugins" title="Plugins"></button>
+    <button class="tb-btn" id="btn-more" data-cmd="more-menu" aria-label="More actions" aria-haspopup="menu" title="More"></button>
+  </div>
+</header>
+<div id="main" class="main">
+  <aside id="sidebar" class="sidebar" aria-label="Files">
+    <div class="sb-filter"><input id="filter" type="search" placeholder="Filter files" aria-label="Filter files" spellcheck="false" autocomplete="off"></div>
+    <div id="tree" class="tree" role="tree" aria-label="Markdown files"></div>
+  </aside>
+  <div id="splitter" class="splitter" role="separator" aria-orientation="vertical" aria-label="Resize sidebar" tabindex="-1"></div>
+  <main id="content" class="content" tabindex="-1">
+    <article id="doc" class="markdown-body" data-mdr-doc></article>
+  </main>
+  <aside id="outline" class="outline" aria-label="Outline">
+    <div class="ol-title">On this page</div>
+    <nav id="outline-list" class="ol-list"></nav>
+  </aside>
+</div>
+<div id="status" class="status" aria-live="polite"></div>
+</body>
+</html>

@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="220" height="80" viewBox="0 0 220 80">
+  <rect x="2" y="2" width="216" height="76" rx="14" fill="#1f6feb"/>
+  <path d="M22 58V22h8l10 14 10-14h8v36h-8V36l-10 13-10-13v22z" fill="#fff"/>
+  <path d="M70 22h14c11 0 18 7 18 18s-7 18-18 18H70zm8 8v20h6c6 0 10-4 10-10s-4-10-10-10z" fill="#fff"/>
+  <text x="114" y="50" font-family="-apple-system, Segoe UI, sans-serif" font-size="22" font-weight="600" fill="#fff">Reader</text>
+</svg>
