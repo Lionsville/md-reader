@@ -11,10 +11,12 @@
 #   notarize with an App Store Connect API key:  APPLE_API_KEY, APPLE_API_ISSUER, APPLE_API_KEY_PATH
 #   ...or with an Apple ID:                      APPLE_ID, APPLE_PASSWORD (app-specific), APPLE_TEAM_ID
 # Without an identity the app is ad-hoc signed: fine on this Mac, blocked by Gatekeeper elsewhere.
+# Locally these are read from ./signing.env (git-ignored; see signing.env.example).
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$ROOT"
+if [ -f signing.env ]; then set -a; . ./signing.env; set +a; fi
 [ -d /opt/homebrew/opt/rustup/bin ] && export PATH="/opt/homebrew/opt/rustup/bin:$PATH"
 
 TARGET="universal-apple-darwin"
@@ -28,6 +30,8 @@ for arg in "$@"; do
   esac
 done
 
+# A key path without a key id (template default) means: no API-key notarization.
+if [ -z "${APPLE_API_KEY:-}" ]; then unset APPLE_API_KEY_PATH APPLE_API_ISSUER; fi
 # The Tauri bundler treats set-but-empty variables as configured: drop empty ones.
 for v in APPLE_SIGNING_IDENTITY APPLE_CERTIFICATE APPLE_CERTIFICATE_PASSWORD APPLE_ID APPLE_PASSWORD \
          APPLE_TEAM_ID APPLE_API_KEY APPLE_API_ISSUER APPLE_API_KEY_PATH; do
@@ -62,6 +66,20 @@ du -sh "$APP" "$OUT"/dmg/*.dmg 2>/dev/null || true
 lipo -archs "$APP/Contents/MacOS/md-reader" | sed 's/^/    architectures: /'
 codesign --verify --deep --strict "$APP" && echo "    codesign: valid"
 if [ "$NOTARIZE" = 1 ]; then
-  xcrun stapler validate "$APP" || true
-  spctl --assess --type execute -vv "$APP" || true
+  xcrun stapler validate "$APP"
+  spctl --assess --type execute -vv "$APP"
+  # Tauri notarizes + staples the .app; also sign, notarize and staple the DMG itself so it
+  # passes Gatekeeper offline and doesn't show a "downloaded from the internet" warning.
+  for DMG in "$OUT"/dmg/*.dmg; do
+    [ -f "$DMG" ] || continue
+    echo "==> Notarizing $(basename "$DMG")"
+    codesign --force --timestamp --sign "$APPLE_SIGNING_IDENTITY" "$DMG"
+    if [ -n "${APPLE_API_KEY:-}" ]; then
+      xcrun notarytool submit "$DMG" --key "$APPLE_API_KEY_PATH" --key-id "$APPLE_API_KEY" --issuer "$APPLE_API_ISSUER" --wait
+    else
+      xcrun notarytool submit "$DMG" --apple-id "$APPLE_ID" --password "$APPLE_PASSWORD" --team-id "$APPLE_TEAM_ID" --wait
+    fi
+    xcrun stapler staple "$DMG"
+    spctl --assess --type open --context context:primary-signature -vv "$DMG"
+  done
 fi

@@ -1,15 +1,48 @@
 # Code signing & notarization
 
-Status: **not configured yet** — the method is still to be decided. Everything below is wired so
-that signing is switched on by adding environment variables (locally) or GitHub secrets/variables
-(CI) only; no config or code changes are needed.
+**Chosen setup:** signed release builds are produced **locally on the Mac**:
 
-- [What we need from you](#what-we-need-from-you)
-- [macOS](#macos) — Developer ID signing + notarization, locally and in CI
-- [Windows](#windows) — the options (PFX, token, cloud/HSM), locally and in CI
-- [Verifying a signed build](#verifying-a-signed-build)
+| | How | Script |
+|---|---|---|
+| macOS | Developer ID Application: Lionsville B.V. (F25LRF5P7Y) from the login keychain; notarized with an **App Store Connect API key**; app *and* DMG stapled | `scripts/build-mac.sh` |
+| Windows | NSIS installer **cross-compiled on the Mac** (cargo-xwin + LLVM + NSIS), signed with **Azure Trusted Signing** via [jsign](https://ebourg.github.io/jsign/) (`scripts/sign-windows.sh`) | `scripts/build-windows-on-mac.sh` |
 
-## What we need from you
+Settings live in `signing.env` (git-ignored; copy `signing.env.example`). Only identifiers and paths go
+there — the Azure client secret is kept in the macOS keychain, the `.p8` key in
+`~/.appstoreconnect/private_keys/`.
+
+### One-time setup
+
+```bash
+cp signing.env.example signing.env        # then fill in the IDs
+# App Store Connect API key (role: Developer) → save the downloaded file as:
+mkdir -p ~/.appstoreconnect/private_keys && mv ~/Downloads/AuthKey_<KEYID>.p8 ~/.appstoreconnect/private_keys/
+# Windows cross-build + signing toolchain:
+brew install nsis llvm jsign
+rustup target add x86_64-pc-windows-msvc
+cargo install --locked cargo-xwin
+# Azure auth — either sign in as yourself:
+az login
+# ...or use an app registration (fill AZURE_TENANT_ID/AZURE_CLIENT_ID in signing.env) and store its secret:
+security add-generic-password -U -a md-reader -s md-reader-azure-client-secret -w
+```
+
+The account used (your own or the app registration) needs the **Trusted Signing Certificate Profile Signer** role on the
+certificate profile (Azure portal › your Trusted Signing account › Access control (IAM)).
+
+### Building a release
+
+```bash
+scripts/build-mac.sh                 # universal .app + .dmg, signed, notarized, stapled
+scripts/build-windows-on-mac.sh      # x64 NSIS installer, signed (add --arm64 for Windows on ARM)
+```
+
+Output: `src-tauri/target/universal-apple-darwin/release/bundle/{macos,dmg}/` and
+`src-tauri/target/x86_64-pc-windows-msvc/release/bundle/nsis/`.
+
+The sections below are the general reference (CI and the other Windows options) kept for later.
+
+## Reference: what each option needs
 
 **macOS** (Apple Developer Program membership — you have one):
 

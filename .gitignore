@@ -5,3 +5,7 @@ src-tauri/gen/
 .DS_Store
 *.log
 src-tauri/tauri.signing.conf.json
+signing.env
+*.p8
+*.p12
+*.pfx
