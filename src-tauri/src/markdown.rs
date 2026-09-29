@@ -7,7 +7,7 @@
 
 use std::borrow::Cow;
 use std::collections::HashMap;
-use std::fmt::{self, Write as _};
+use std::fmt;
 use std::path::{Path, PathBuf};
 
 use comrak::adapters::SyntaxHighlighterAdapter;

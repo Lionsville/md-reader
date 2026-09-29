@@ -3,6 +3,8 @@ mod folder;
 mod markdown;
 mod pdf;
 mod protocol;
+#[cfg(target_os = "macos")]
+mod services;
 
 use std::collections::HashMap;
 use std::path::{Path, PathBuf};
@@ -358,6 +360,7 @@ pub fn run() {
             {
                 let menu = build_menu(app.handle())?;
                 app.set_menu(menu)?;
+                services::register(app.handle());
             }
             app.on_menu_event(|app, event| handle_menu(app, event.id().as_ref()));
 
