@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+  <!-- MD Reader app icon, simplified variant for 16-32 px (no page, heavy M-down mark). -->
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0.35" y2="1">
+      <stop offset="0" stop-color="#5E7BFF"/>
+      <stop offset="1" stop-color="#2F3FC8"/>
+    </linearGradient>
+  </defs>
+  <rect x="16" y="16" width="992" height="992" rx="210" fill="url(#bg)"/>
+  <g fill="none" stroke="#FFFFFF" stroke-width="120" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M190 790 V260 L380 480 L570 260 V790"/>
+    <path d="M790 260 V770"/>
+    <path d="M655 630 L790 775 L925 630"/>
+  </g>
+</svg>

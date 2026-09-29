@@ -29,14 +29,74 @@
   "bundle": {
     "active": true,
     "targets": "all",
+    "publisher": "Lionsville",
+    "homepage": "https://lionsville.nl/md-reader",
+    "copyright": "Copyright © 2026 Lionsville. MIT License.",
+    "license": "MIT",
     "category": "Productivity",
     "shortDescription": "Fast native markdown reader",
+    "longDescription": "MD Reader is a super-fast, native markdown reader for macOS and Windows. Open a single file or a whole folder of notes and documentation, with GitHub-flavoured markdown, syntax highlighting, math, Mermaid diagrams, live reload and PDF export.",
     "icon": [
       "icons/32x32.png",
       "icons/128x128.png",
       "icons/128x128@2x.png",
       "icons/icon.icns",
       "icons/icon.ico"
-    ]
+    ],
+    "fileAssociations": [
+      {
+        "ext": ["md", "markdown"],
+        "name": "MDReader.Markdown",
+        "description": "Markdown Document",
+        "role": "Viewer",
+        "rank": "Default",
+        "mimeType": "text/markdown",
+        "contentTypes": ["net.daringfireball.markdown"]
+      },
+      {
+        "ext": ["mdown", "mkd", "mkdn", "mdwn", "mdx"],
+        "name": "MDReader.Markdown",
+        "description": "Markdown Document",
+        "role": "Viewer",
+        "rank": "Default",
+        "mimeType": "text/markdown",
+        "exportedType": {
+          "identifier": "nl.lionsville.mdreader.markdown",
+          "conformsTo": ["net.daringfireball.markdown", "public.plain-text"]
+        }
+      }
+    ],
+    "macOS": {
+      "minimumSystemVersion": "11.0",
+      "hardenedRuntime": true,
+      "signingIdentity": null,
+      "providerShortName": null,
+      "entitlements": null,
+      "files": {
+        "Resources/document.icns": "icons/document.icns"
+      },
+      "dmg": {
+        "background": "icons/dmg-background.png",
+        "windowSize": { "width": 660, "height": 400 },
+        "appPosition": { "x": 180, "y": 170 },
+        "applicationFolderPosition": { "x": 480, "y": 170 }
+      }
+    },
+    "windows": {
+      "certificateThumbprint": null,
+      "digestAlgorithm": "sha256",
+      "timestampUrl": "http://timestamp.digicert.com",
+      "tsp": false,
+      "webviewInstallMode": { "type": "embedBootstrapper", "silent": true },
+      "allowDowngrades": true,
+      "nsis": {
+        "installMode": "currentUser",
+        "installerIcon": "icons/icon.ico",
+        "installerHooks": "windows/hooks.nsh",
+        "languages": ["English", "Dutch"],
+        "displayLanguageSelector": false,
+        "compression": "lzma"
+      }
+    }
   }
 }

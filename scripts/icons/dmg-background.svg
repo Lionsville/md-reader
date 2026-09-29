@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 660 400" width="660" height="400">
+  <!-- DMG window background (660x400). App icon sits at (180,170), Applications at (480,170). -->
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#F7F8FD"/>
+      <stop offset="1" stop-color="#E6EAF8"/>
+    </linearGradient>
+  </defs>
+  <rect width="660" height="400" fill="url(#bg)"/>
+  <g fill="none" stroke="#8C9BE6" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" opacity="0.9">
+    <path d="M272 170 H384" stroke-dasharray="2 14"/>
+    <path d="M372 152 L392 170 L372 188"/>
+  </g>
+  <text x="330" y="318" text-anchor="middle" font-family="-apple-system, 'SF Pro Text', 'Helvetica Neue', sans-serif" font-size="15" fill="#4A5270">Drag MD Reader to Applications to install</text>
+</svg>

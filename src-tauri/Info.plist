@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+  Merged by the Tauri bundler into the generated Info.plist (top-level keys here REPLACE the
+  generated ones). CFBundleDocumentTypes / UTExportedTypeDeclarations are defined here in full
+  (instead of only via bundle.fileAssociations) so we can add a document icon and a folder
+  document type; keep the extension lists in sync with bundle.fileAssociations in
+  tauri.conf.json (used for Windows/Linux) and markdown::MARKDOWN_EXTENSIONS.
+-->
+<plist version="1.0">
+<dict>
+	<key>CFBundleDocumentTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleTypeName</key>
+			<string>Markdown Document</string>
+			<key>CFBundleTypeRole</key>
+			<string>Viewer</string>
+			<key>LSHandlerRank</key>
+			<string>Default</string>
+			<key>CFBundleTypeIconFile</key>
+			<string>document.icns</string>
+			<key>LSItemContentTypes</key>
+			<array>
+				<string>net.daringfireball.markdown</string>
+				<string>nl.lionsville.mdreader.markdown</string>
+			</array>
+		</dict>
+		<dict>
+			<key>CFBundleTypeName</key>
+			<string>Folder</string>
+			<key>CFBundleTypeRole</key>
+			<string>Viewer</string>
+			<key>LSHandlerRank</key>
+			<string>Alternate</string>
+			<key>LSItemContentTypes</key>
+			<array>
+				<string>public.folder</string>
+			</array>
+		</dict>
+	</array>
+
+	<!-- The canonical Markdown UTI. Declared by macOS itself on recent versions; importing it
+	     keeps .md/.markdown working on systems (or setups) where it is not declared. -->
+	<key>UTImportedTypeDeclarations</key>
+	<array>
+		<dict>
+			<key>UTTypeIdentifier</key>
+			<string>net.daringfireball.markdown</string>
+			<key>UTTypeDescription</key>
+			<string>Markdown Document</string>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string>public.plain-text</string>
+			</array>
+			<key>UTTypeReferenceURL</key>
+			<string>https://daringfireball.net/projects/markdown/</string>
+			<key>UTTypeTagSpecification</key>
+			<dict>
+				<key>public.filename-extension</key>
+				<array>
+					<string>md</string>
+					<string>markdown</string>
+				</array>
+				<key>public.mime-type</key>
+				<array>
+					<string>text/markdown</string>
+					<string>text/x-markdown</string>
+				</array>
+			</dict>
+		</dict>
+	</array>
+
+	<!-- Less common markdown extensions have no system UTI (they would be dyn.* types that
+	     Finder can't match against LSItemContentTypes / NSSendFileTypes), so declare one. -->
+	<key>UTExportedTypeDeclarations</key>
+	<array>
+		<dict>
+			<key>UTTypeIdentifier</key>
+			<string>nl.lionsville.mdreader.markdown</string>
+			<key>UTTypeDescription</key>
+			<string>Markdown Document</string>
+			<key>UTTypeIconFile</key>
+			<string>document.icns</string>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string>net.daringfireball.markdown</string>
+				<string>public.plain-text</string>
+			</array>
+			<key>UTTypeTagSpecification</key>
+			<dict>
+				<key>public.filename-extension</key>
+				<array>
+					<string>mdown</string>
+					<string>mkd</string>
+					<string>mkdn</string>
+					<string>mdwn</string>
+					<string>mdx</string>
+				</array>
+			</dict>
+		</dict>
+	</array>
+
+	<!-- Finder right-click › Services / Quick Actions › "Open in MD Reader".
+	     Handled by services.rs (openInMDReader:userData:error:). -->
+	<key>NSServices</key>
+	<array>
+		<dict>
+			<key>NSMenuItem</key>
+			<dict>
+				<key>default</key>
+				<string>Open in MD Reader</string>
+			</dict>
+			<key>NSMessage</key>
+			<string>openInMDReader</string>
+			<key>NSPortName</key>
+			<string>MD Reader</string>
+			<key>NSRequiredContext</key>
+			<dict/>
+			<key>NSSendFileTypes</key>
+			<array>
+				<string>public.folder</string>
+				<string>net.daringfireball.markdown</string>
+				<string>nl.lionsville.mdreader.markdown</string>
+			</array>
+		</dict>
+	</array>
+</dict>
+</plist>

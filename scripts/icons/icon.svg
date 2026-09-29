@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+  <!-- MD Reader app icon, full-bleed variant used for Windows (.ico) and Linux/PNG icons. -->
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0.35" y2="1">
+      <stop offset="0" stop-color="#5E7BFF"/>
+      <stop offset="1" stop-color="#2F3FC8"/>
+    </linearGradient>
+    <linearGradient id="page" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#FFFFFF"/>
+      <stop offset="1" stop-color="#EDF0FB"/>
+    </linearGradient>
+    <linearGradient id="ink" gradientUnits="userSpaceOnUse" x1="0" y1="470" x2="0" y2="720">
+      <stop offset="0" stop-color="#2A3AC4"/>
+      <stop offset="1" stop-color="#1B2687"/>
+    </linearGradient>
+    <filter id="tileShadow" x="-10%" y="-10%" width="120%" height="125%">
+      <feDropShadow dx="0" dy="10" stdDeviation="12" flood-color="#000000" flood-opacity="0.28"/>
+    </filter>
+    <filter id="pageShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="14" stdDeviation="16" flood-color="#0A1360" flood-opacity="0.40"/>
+    </filter>
+  </defs>
+  <g transform="translate(512 512) scale(1.2) translate(-512 -512)">
+  <rect x="100" y="100" width="824" height="824" rx="185" fill="url(#bg)"/>
+  <rect x="100" y="100" width="824" height="824" rx="185" fill="none" stroke="#FFFFFF" stroke-opacity="0.18" stroke-width="4"/>
+  <g filter="url(#pageShadow)">
+    <path d="M298 204 H626 L762 340 V784 a36 36 0 0 1 -36 36 H298 a36 36 0 0 1 -36 -36 V240 a36 36 0 0 1 36 -36 Z" fill="url(#page)"/>
+  </g>
+  <path d="M626 204 V304 a36 36 0 0 0 36 36 H762 Z" fill="#C3CCF4"/>
+  <g fill="none" stroke="#CBD2F2" stroke-width="30" stroke-linecap="round">
+    <path d="M330 296 H550"/>
+    <path d="M330 362 H480"/>
+  </g>
+  <g fill="none" stroke="url(#ink)" stroke-width="58" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M338 704 V484 L424 584 L510 484 V704"/>
+    <path d="M634 484 V696"/>
+    <path d="M574 638 L634 700 L694 638"/>
+  </g>
+
+  </g>
+</svg>

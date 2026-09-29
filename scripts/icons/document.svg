@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+  <!-- MD Reader document icon for markdown files (a page with the M-down mark). -->
+  <defs>
+    <linearGradient id="page" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#FFFFFF"/>
+      <stop offset="1" stop-color="#F1F3FB"/>
+    </linearGradient>
+    <linearGradient id="ink" gradientUnits="userSpaceOnUse" x1="0" y1="470" x2="0" y2="760">
+      <stop offset="0" stop-color="#4D68F5"/>
+      <stop offset="1" stop-color="#2A36B8"/>
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="8" stdDeviation="10" flood-color="#000000" flood-opacity="0.25"/>
+    </filter>
+  </defs>
+  <g filter="url(#shadow)">
+    <path d="M226 64 H646 L852 270 V912 a44 44 0 0 1 -44 44 H226 a44 44 0 0 1 -44 -44 V108 a44 44 0 0 1 44 -44 Z" fill="url(#page)" stroke="#D5DAEE" stroke-width="4"/>
+  </g>
+  <path d="M646 64 V226 a44 44 0 0 0 44 44 H852 Z" fill="#DCE1F6" stroke="#D5DAEE" stroke-width="4" stroke-linejoin="round"/>
+  <g fill="none" stroke="#DCE0F2" stroke-width="30" stroke-linecap="round">
+    <path d="M262 170 H540"/>
+    <path d="M262 240 H470"/>
+    <path d="M262 310 H560"/>
+  </g>
+  <rect x="244" y="410" width="546" height="420" rx="56" fill="none" stroke="url(#ink)" stroke-width="40"/>
+  <g fill="none" stroke="url(#ink)" stroke-width="52" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M338 730 V520 L420 616 L502 520 V730"/>
+    <path d="M640 520 V724"/>
+    <path d="M582 664 L640 726 L698 664"/>
+  </g>
+</svg>
