@@ -33,9 +33,9 @@ folder of notes and documentation and just read — no editor chrome, no Electro
 
 ## Install
 
-Download the latest release from the Releases page:
-
-- **macOS 11+** (universal: Apple Silicon & Intel): `MD Reader_<version>_universal.dmg`, drag to Applications.
+- **macOS 11+** (universal: Apple Silicon & Intel): **[Download MD Reader 0.1.0 for macOS](binaries/MD-Reader-0.1.0-universal.dmg?raw=true)**
+  (14 MB, signed and notarized) — open the DMG and drag MD Reader to Applications.
+  SHA-256: `17036eff7ce4eccdd49373c3a0c29b3313af7fc68746b063e1767b6096f421e2`
 - **Windows 10/11**: `MD Reader_<version>_x64-setup.exe` — per-user install, no admin rights needed.
 
 See **[docs/INSTALL.md](docs/INSTALL.md)** for making it the default markdown app, enabling the
