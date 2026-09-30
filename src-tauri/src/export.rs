@@ -169,7 +169,7 @@ pub fn build(path: &Path, mode: &str, on_progress: &(dyn Fn(usize, usize) + Sync
             if !path.is_dir() {
                 return Err(format!("{} is not a folder", path.display()));
             }
-            let tree = folder::scan(path);
+            let tree = folder::scan(path, folder::Files::Markdown);
             let mut jobs = Vec::new();
             collect_jobs(&tree, &mut Vec::new(), &mut jobs);
             if jobs.is_empty() {

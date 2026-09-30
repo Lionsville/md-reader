@@ -1,4 +1,5 @@
-//! Folder scanning: builds a tree of the markdown files below a directory.
+//! Folder scanning: builds a tree of the markdown files (and, for the reader, PDF/HTML
+//! previews) below a directory.
 
 use std::cmp::Ordering;
 use std::path::Path;
@@ -6,6 +7,22 @@ use std::path::Path;
 use serde::Serialize;
 
 use crate::markdown::is_markdown;
+use crate::preview::is_previewable;
+
+/// Which files a scan lists.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum Files {
+    /// Markdown only (PDF export).
+    Markdown,
+    /// Markdown plus PDF/HTML previews (the reader's folder tree).
+    Viewable,
+}
+
+impl Files {
+    fn wants(self, path: &Path) -> bool {
+        is_markdown(path) || (self == Files::Viewable && is_previewable(path))
+    }
+}
 
 const SKIP_DIRS: &[&str] = &["node_modules", "target", "bower_components", "__pycache__", "venv", ".venv", "dist", "build"];
 const MAX_DEPTH: usize = 12;
@@ -20,9 +37,9 @@ pub struct FolderNode {
     pub children: Vec<FolderNode>,
 }
 
-pub fn scan(root: &Path) -> FolderNode {
+pub fn scan(root: &Path, files: Files) -> FolderNode {
     let mut budget = MAX_ENTRIES;
-    let children = scan_dir(root, 0, &mut budget);
+    let children = scan_dir(root, 0, &mut budget, files);
     FolderNode {
         name: display_name(root),
         path: root.to_string_lossy().into_owned(),
@@ -37,7 +54,7 @@ fn display_name(p: &Path) -> String {
         .unwrap_or_else(|| p.to_string_lossy().into_owned())
 }
 
-fn scan_dir(dir: &Path, depth: usize, budget: &mut usize) -> Vec<FolderNode> {
+fn scan_dir(dir: &Path, depth: usize, budget: &mut usize, files: Files) -> Vec<FolderNode> {
     if depth > MAX_DEPTH || *budget == 0 {
         return Vec::new();
     }
@@ -62,11 +79,11 @@ fn scan_dir(dir: &Path, depth: usize, budget: &mut usize) -> Vec<FolderNode> {
             if SKIP_DIRS.contains(&name.as_str()) {
                 continue;
             }
-            let children = scan_dir(&path, depth + 1, budget);
+            let children = scan_dir(&path, depth + 1, budget, files);
             if !children.is_empty() {
                 nodes.push(FolderNode { name, path: path.to_string_lossy().into_owned(), is_dir: true, children });
             }
-        } else if is_markdown(&path) && path.is_file() {
+        } else if files.wants(&path) && path.is_file() {
             nodes.push(FolderNode { name, path: path.to_string_lossy().into_owned(), is_dir: false, children: Vec::new() });
         }
     }

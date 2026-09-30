@@ -32,7 +32,8 @@ src-tauri/src/
   lib.rs                app setup, commands, windows, menu, run loop (lead)
   markdown.rs           comrak + syntect + ammonia (lead)
   folder.rs             folder tree scan (lead)
-  protocol.rs           `mdr` scheme for local images / user plugins (lead)
+  protocol.rs           `mdr` scheme for local images, PDFs / user plugins (lead)
+  preview.rs            PDF/HTML previews: sandboxed `mdrhtml` scheme + `html_preview_url` (lead)
   export.rs             build_export command (export)
   pdf/                  print_to_pdf command, macos.rs / windows.rs (export)
   services.rs           macOS Services "Open in MD Reader" (packaging)
@@ -42,8 +43,9 @@ src-tauri/src/
 | command | args | returns |
 |---|---|---|
 | `render_file` | `path, idPrefix?` | `{path, dir, title, html, headings:[{level,text,id}], frontMatter:[[k,v]]|null}` |
-| `scan_folder` | `path` | `FolderNode {name, path, isDir, children}` — only markdown files; dirs without md pruned; README/index first, then files, then dirs, natural sort |
-| `path_info` | `path` | `{exists, isDir, isFile, isMarkdown}` |
+| `scan_folder` | `path` | `FolderNode {name, path, isDir, children}` — markdown, PDF and HTML files; dirs without any pruned; README/index first, then files, then dirs, natural sort (folder export scans markdown only) |
+| `path_info` | `path` | `{exists, isDir, isFile, isMarkdown, isPreview}` (`isPreview`: .pdf/.html/.htm/.xhtml) |
+| `html_preview_url` | `path` | URL of an HTML file on the sandboxed `mdrhtml` scheme (see *Previews*) |
 | `open_window` | `path?` | opens a new reader window (file or folder path, or welcome screen) |
 | `open_export` | `path, mode:'file'|'folder'` | opens the export window |
 | `watch_path` | `path` | watches file (via its dir) or folder (recursive); emits `fs-changed` (string[] paths) to the calling window |
@@ -70,6 +72,18 @@ src-tauri/src/
 - Footnotes: `section.footnotes`, refs `sup.footnote-ref`. Description lists `dl/dt/dd`. `mark` for ==highlight==. Spoilers `span.spoiler`.
 - Local media `src` rewritten to `mdr://localhost/<abs>` (macOS) / `http://mdr.localhost/<C:/abs>` (Windows). Links (`href`) are left as written — the reader resolves relative `.md` links itself.
 - HTML is sanitized: no scripts, no event handlers, no `<style>`.
+
+## Previews (PDF / HTML)
+`loadDoc(path)` in app.js returns either a `render_file` result or a preview doc
+`{path, dir, title, preview:'pdf'|'html', url, headings:[], html:''}`; `renderInto` shows previews in an
+`<iframe class="preview-frame">` (body gets `has-preview`). Plugins, find and export skip previews.
+- **PDF**: `mdr://…/file.pdf` (`application/pdf`), rendered by the webview's own PDF viewer.
+- **HTML**: `mdrhtml://localhost/<token>/<file>` (Windows `http://mdrhtml.localhost/…`). The token maps to
+  the HTML file's folder; only files at or below it are served. Every response carries a CSP with
+  `sandbox allow-scripts allow-forms allow-modals allow-pointer-lock` (opaque origin: no access to the
+  reader, no storage/cookies, no popups or top navigation) and a `connect-src` without the IPC endpoints.
+  The frame never gets Tauri's per-launch invoke key, which every IPC call requires. The reader's CSP
+  allows the scheme only in `frame-src`, never in `script-src`.
 
 ## Theme
 `<html data-theme="light|dark">`, preference in `localStorage['mdr.theme']` = `system|light|dark`.

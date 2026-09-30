@@ -20,9 +20,13 @@ folder of notes and documentation and just read — no editor chrome, no Electro
   extend with your own.
 - **Folders**: open a folder to get a sidebar with all its markdown files, quick open
   (<kbd>⌘/Ctrl</kbd>+<kbd>P</kbd>), relative links between documents, back/forward.
+- **PDF and HTML previews**: PDF and HTML files show up in the folder sidebar and open in the
+  reader (also from links in markdown). PDFs use the system's PDF viewer; HTML pages run their
+  own JavaScript, like a local file in a browser, but sandboxed — no access to the app, the OS,
+  or files outside the page's own folder. Previews are not included in PDF exports.
 - **Outline** of the current document, find in page, zoom, light/dark/system theme.
 - **Live reload** when a file changes on disk (works with editors that save atomically).
-- **Export to PDF** — a document or a whole folder, with paged layout and an outline.
+- **Export to PDF** — a markdown document or all markdown in a folder, with paged layout and an outline.
 - **OS integration**: registers for `.md .markdown .mdown .mkd .mkdn .mdwn .mdx`, opens files and
   folders dropped on the Dock icon, *Open in MD Reader* in the Finder (Services / Quick Actions)
   and Explorer (right-click) context menus.

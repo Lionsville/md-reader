@@ -6,8 +6,10 @@ const invoke = T.core.invoke;
 export const renderFile = (path, idPrefix = '') => invoke('render_file', { path, idPrefix });
 /** @returns {Promise<{name:string, path:string, isDir:boolean, children:any[]}>} */
 export const scanFolder = (path) => invoke('scan_folder', { path });
-/** @returns {Promise<{exists:boolean, isDir:boolean, isFile:boolean, isMarkdown:boolean}>} */
+/** @returns {Promise<{exists:boolean, isDir:boolean, isFile:boolean, isMarkdown:boolean, isPreview:boolean}>} */
 export const pathInfo = (path) => invoke('path_info', { path });
+/** URL that shows an HTML file in the sandboxed preview frame (scripts run, no app/OS access). */
+export const htmlPreviewUrl = (path) => invoke('html_preview_url', { path });
 export const openWindow = (path = null) => invoke('open_window', { path });
 export const openExport = (path, mode /* 'file' | 'folder' */) => invoke('open_export', { path, mode });
 /** Changes arrive as the `fs-changed` event (payload: string[] of paths) on the current window. */

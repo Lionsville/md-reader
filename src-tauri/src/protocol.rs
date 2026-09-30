@@ -1,8 +1,10 @@
-//! The `mdr` URI scheme: serves local media referenced by markdown files, plus user plugins.
+//! The `mdr` URI scheme: serves local media referenced by markdown files, PDFs shown in the
+//! reader, plus user plugins.
 //!
 //! macOS/Linux: `mdr://localhost/<abs path>`; Windows: `http://mdr.localhost/<C:/abs/path>`.
-//! Only media/font types are served from arbitrary locations; scripts are only served from the
-//! user plugin directory, so a document can't smuggle code into the reader.
+//! Only media/font/PDF types are served from arbitrary locations; scripts are only served from the
+//! user plugin directory, so a document can't smuggle code into the reader. (Interactive HTML is
+//! served by the separate, sandboxed `mdrhtml` scheme — see `preview.rs`.)
 
 use std::io::{Read, Seek, SeekFrom};
 use std::path::{Path, PathBuf};
@@ -41,7 +43,7 @@ fn path_from_uri(uri_path: &str) -> PathBuf {
     }
 }
 
-fn mime_for(path: &Path) -> Option<&'static str> {
+pub fn mime_for(path: &Path) -> Option<&'static str> {
     let ext = path.extension()?.to_str()?.to_ascii_lowercase();
     Some(match ext.as_str() {
         "png" => "image/png",
@@ -65,6 +67,7 @@ fn mime_for(path: &Path) -> Option<&'static str> {
         "ogg" | "oga" => "audio/ogg",
         "flac" => "audio/flac",
         "vtt" => "text/vtt",
+        "pdf" => "application/pdf",
         "woff" => "font/woff",
         "woff2" => "font/woff2",
         "ttf" => "font/ttf",
@@ -86,7 +89,7 @@ fn allowed(path: &Path, mime: &str) -> bool {
     true
 }
 
-fn error(status: StatusCode) -> Response<Vec<u8>> {
+pub fn error(status: StatusCode) -> Response<Vec<u8>> {
     Response::builder()
         .status(status)
         .header(header::ACCESS_CONTROL_ALLOW_ORIGIN, "*")
@@ -102,16 +105,29 @@ pub fn handle(request: &Request<Vec<u8>>) -> Response<Vec<u8>> {
     if !allowed(&path, mime) {
         return error(StatusCode::FORBIDDEN);
     }
-    let Ok(mut file) = std::fs::File::open(&path) else {
+    serve_file(&path, mime, request, &[])
+}
+
+/// Serve a local file (with `Range` support so audio/video/PDF can seek).
+pub fn serve_file(
+    path: &Path,
+    mime: &str,
+    request: &Request<Vec<u8>>,
+    extra_headers: &[(&str, &str)],
+) -> Response<Vec<u8>> {
+    let Ok(mut file) = std::fs::File::open(path) else {
         return error(StatusCode::NOT_FOUND);
     };
     let len = file.metadata().map(|m| m.len()).unwrap_or(0);
 
-    let builder = Response::builder()
+    let mut builder = Response::builder()
         .header(header::CONTENT_TYPE, mime)
         .header(header::ACCEPT_RANGES, "bytes")
         .header(header::ACCESS_CONTROL_ALLOW_ORIGIN, "*")
         .header(header::CACHE_CONTROL, "no-cache");
+    for (k, v) in extra_headers {
+        builder = builder.header(*k, *v);
+    }
 
     // Range support so audio/video can seek.
     if let Some(range) = request

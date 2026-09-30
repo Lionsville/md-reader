@@ -2,6 +2,7 @@ mod export;
 mod folder;
 mod markdown;
 mod pdf;
+mod preview;
 mod protocol;
 #[cfg(target_os = "macos")]
 mod services;
@@ -119,7 +120,7 @@ fn scan_folder(path: String) -> Result<folder::FolderNode, String> {
     if !p.is_dir() {
         return Err(format!("{path} is not a folder"));
     }
-    Ok(folder::scan(p))
+    Ok(folder::scan(p, folder::Files::Viewable))
 }
 
 #[derive(Serialize)]
@@ -129,12 +130,26 @@ struct PathInfo {
     is_dir: bool,
     is_file: bool,
     is_markdown: bool,
+    /// PDF or HTML, shown in the reader as a preview.
+    is_preview: bool,
 }
 
 #[tauri::command]
 fn path_info(path: String) -> PathInfo {
     let p = Path::new(&path);
-    PathInfo { exists: p.exists(), is_dir: p.is_dir(), is_file: p.is_file(), is_markdown: markdown::is_markdown(p) }
+    PathInfo {
+        exists: p.exists(),
+        is_dir: p.is_dir(),
+        is_file: p.is_file(),
+        is_markdown: markdown::is_markdown(p),
+        is_preview: preview::is_previewable(p),
+    }
+}
+
+/// URL for showing an HTML file in the reader's sandboxed preview frame.
+#[tauri::command]
+fn html_preview_url(path: String) -> Result<String, String> {
+    preview::preview_url(Path::new(&path))
 }
 
 #[tauri::command]
@@ -298,7 +313,12 @@ fn handle_menu(app: &AppHandle, id: &str) {
             let handle = app.clone();
             let mut d = app.dialog().file();
             if id == "open-file" {
-                d = d.add_filter("Markdown", markdown::MARKDOWN_EXTENSIONS);
+                let all: Vec<&str> = [markdown::MARKDOWN_EXTENSIONS, preview::PDF_EXTENSIONS, preview::HTML_EXTENSIONS].concat();
+                d = d
+                    .add_filter("Markdown, PDF & HTML", &all)
+                    .add_filter("Markdown", markdown::MARKDOWN_EXTENSIONS)
+                    .add_filter("PDF", preview::PDF_EXTENSIONS)
+                    .add_filter("HTML", preview::HTML_EXTENSIONS);
                 d.pick_file(move |p| {
                     if let Some(p) = p.and_then(|p| p.into_path().ok()) {
                         let _ = open_reader_window(&handle, Some(&p));
@@ -338,10 +358,14 @@ pub fn run() {
         .register_asynchronous_uri_scheme_protocol("mdr", |_ctx, request, responder| {
             std::thread::spawn(move || responder.respond(protocol::handle(&request)));
         })
+        .register_asynchronous_uri_scheme_protocol(preview::SCHEME, |_ctx, request, responder| {
+            std::thread::spawn(move || responder.respond(preview::handle(&request)));
+        })
         .invoke_handler(tauri::generate_handler![
             render_file,
             scan_folder,
             path_info,
+            html_preview_url,
             open_window,
             open_export,
             watch_path,

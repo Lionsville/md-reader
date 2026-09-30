@@ -1,0 +1,8 @@
+body { font: 15px/1.5 -apple-system, "Segoe UI", sans-serif; max-width: 720px; margin: 32px auto; padding: 0 20px; color: #1f2328; }
+h1 { font-size: 26px; }
+section { margin: 24px 0; }
+button { font: inherit; padding: 6px 14px; border-radius: 6px; border: 1px solid #0969da; background: #0969da; color: #fff; cursor: pointer; }
+canvas { border: 1px solid #d0d7de; border-radius: 6px; max-width: 100%; }
+#checks { list-style: none; padding: 0; }
+#checks li.pass { color: #1a7f37; }
+#checks li.fail { color: #cf222e; font-weight: 600; }

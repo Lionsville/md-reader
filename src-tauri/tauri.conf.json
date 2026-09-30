@@ -19,6 +19,7 @@
         "style-src": "'self' 'unsafe-inline'",
         "font-src": "'self' data:",
         "script-src": "'self' blob: mdr: http://mdr.localhost",
+        "frame-src": "mdr: http://mdr.localhost mdrhtml: http://mdrhtml.localhost",
         "connect-src": "'self' ipc: http://ipc.localhost mdr: http://mdr.localhost"
       },
       "dangerousDisableAssetCspModification": [

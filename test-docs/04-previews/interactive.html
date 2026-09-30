@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Interactive HTML preview</title>
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+<h1>Interactive HTML preview</h1>
+<p>This page runs its own JavaScript inside MD Reader, like a local file in a browser — but in a sandbox without access to the app or your files.</p>
+
+<section>
+  <h2>Counter</h2>
+  <button id="inc" type="button">Clicked <span id="count">0</span> times</button>
+</section>
+
+<section>
+  <h2>Canvas</h2>
+  <canvas id="c" width="480" height="120"></canvas>
+</section>
+
+<section>
+  <h2>Sandbox check</h2>
+  <ul id="checks"></ul>
+</section>
+
+<script src="assets/app.js"></script>
+</body>
+</html>

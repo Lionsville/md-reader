@@ -2,8 +2,9 @@
 // (front matter, table wrappers, code-block tools, image lightbox, spoilers).
 import { h, icon, escapeHtml } from './util.js';
 
-/** Put a rendered doc ({html, frontMatter}) into `el`. Synchronous and cheap. */
+/** Put a rendered doc ({html, frontMatter}) — or a PDF/HTML preview ({preview, url}) — into `el`. Synchronous and cheap. */
 export function renderInto(el, doc) {
+  if (doc.preview) return renderPreview(el, doc);
   let fm = '';
   if (doc.frontMatter && doc.frontMatter.length) {
     const rows = doc.frontMatter.map(([k, v]) => `<tr><th scope="row">${escapeHtml(k)}</th><td>${escapeHtml(v)}</td></tr>`).join('');
@@ -11,6 +12,16 @@ export function renderInto(el, doc) {
   }
   el.innerHTML = fm + doc.html;
   enhance(el);
+}
+
+/**
+ * PDF: the webview's own PDF viewer. HTML: a sandboxed frame on its own opaque origin — scripts
+ * run, but the page can't reach the reader, the app's IPC, or files outside its own folder.
+ */
+function renderPreview(el, doc) {
+  const frame = h('iframe', { class: `preview-frame preview-${doc.preview}`, src: doc.url, title: doc.title, referrerpolicy: 'no-referrer' });
+  if (doc.preview === 'html') frame.setAttribute('sandbox', 'allow-scripts allow-forms allow-modals allow-pointer-lock');
+  el.replaceChildren(frame);
 }
 
 /** Wrap tables (horizontal scroll) and code blocks (label + copy button). */

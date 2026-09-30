@@ -23,6 +23,8 @@ const P = {
   close: '<path d="m4 4 8 8M12 4l-8 8"/>',
   file: '<path d="M4.5 1.8h4.8l3.2 3.2v8.2a1 1 0 0 1-1 1h-7a1 1 0 0 1-1-1V2.8a1 1 0 0 1 1-1Z"/><path d="M9 1.8v3.5h3.5"/>',
   doc: '<path d="M4.5 1.8h4.8l3.2 3.2v8.2a1 1 0 0 1-1 1h-7a1 1 0 0 1-1-1V2.8a1 1 0 0 1 1-1Z"/><path d="M9 1.8v3.5h3.5M5.8 8.5h4.4M5.8 11h3"/>',
+  pdf: '<path d="M4.5 1.8h4.8l3.2 3.2v8.2a1 1 0 0 1-1 1h-7a1 1 0 0 1-1-1V2.8a1 1 0 0 1 1-1Z"/><path d="M9 1.8v3.5h3.5M5.5 11.8c1.6-1 3.3-3.5 3-5 .7 1.8 1.6 3.3 2.6 3.6-1.6-.2-3.8.2-5.6 1.4Z"/>',
+  html: '<path d="M4.5 1.8h4.8l3.2 3.2v8.2a1 1 0 0 1-1 1h-7a1 1 0 0 1-1-1V2.8a1 1 0 0 1 1-1Z"/><path d="M9 1.8v3.5h3.5M6.6 8.2 5 9.8l1.6 1.6M9.4 8.2 11 9.8l-1.6 1.6"/>',
   folder: '<path d="M1.8 4.3a1 1 0 0 1 1-1h3.3l1.5 1.6h5.6a1 1 0 0 1 1 1v6.8a1 1 0 0 1-1 1H2.8a1 1 0 0 1-1-1Z"/>',
   copy: '<rect x="5.5" y="5.5" width="8" height="8" rx="1.5"/><path d="M10.5 5.5V3.8a1.3 1.3 0 0 0-1.3-1.3H3.8a1.3 1.3 0 0 0-1.3 1.3v5.4a1.3 1.3 0 0 0 1.3 1.3h1.7"/>',
   check: '<path d="M3.2 8.4 6.4 11.5 12.8 4.8"/>',
@@ -54,6 +56,10 @@ export const session = {
 export const SEP = isWindows ? '\\' : '/';
 const MD_EXT = /\.(md|markdown|mdown|mkd|mkdn|mdwn|mdx|mdtxt|mdtext)$/i;
 export const isMarkdownPath = (p) => MD_EXT.test(p);
+/** 'pdf' | 'html' for files shown as a preview (not rendered as markdown), else null. */
+export const previewKind = (p) => (/\.pdf$/i.test(p) ? 'pdf' : /\.(html?|xhtml)$/i.test(p) ? 'html' : null);
+/** Anything the reader can show: markdown, PDF or HTML. */
+export const isViewablePath = (p) => isMarkdownPath(p) || previewKind(p) !== null;
 export const basename = (p) => p.replace(/[\\/]+$/, '').split(/[\\/]/).pop() || p;
 export const dirname = (p) => {
   const s = p.replace(/[\\/]+$/, '');

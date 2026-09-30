@@ -7,7 +7,7 @@ import { createTree } from './sidebar.js';
 import { createOutline } from './outline.js';
 import {
   $, h, icon, store, session, toast, debounce, isMac, isWindows,
-  basename, dirname, joinPath, normPath, isInside, relativePath, isMarkdownPath,
+  basename, dirname, joinPath, normPath, isInside, relativePath, isMarkdownPath, isViewablePath, previewKind,
 } from './util.js';
 
 const body = document.body;
@@ -20,7 +20,7 @@ const state = {
   mode: 'welcome',   // 'welcome' | 'file' | 'folder'
   root: null,        // folder path (folder mode)
   path: null,        // current document path
-  doc: null,         // last render_file result
+  doc: null,         // last loadDoc result (render_file result, or a PDF/HTML preview)
   shown: false,
   history: [],       // [{path, hash, scroll}]
   hIndex: -1,
@@ -140,7 +140,7 @@ async function openFolder(root) {
   const last = store.get('mdr.last:' + root, null);
   const [node, lastDoc] = await Promise.all([
     api.scanFolder(root),
-    last && isInside(last, root) ? api.renderFile(last).catch(() => null) : null,
+    last && isInside(last, root) ? loadDoc(last).catch(() => null) : null,
   ]);
   tree.setData(node);
   updateCrumbs();
@@ -157,6 +157,19 @@ async function openFolder(root) {
   outline.set([], docEl);
   body.classList.remove('has-outline');
   showError({ title: 'No markdown files', detail: 'This folder does not contain any markdown files yet. New files appear here automatically.', path: root });
+}
+
+/**
+ * Load a document: markdown is rendered by Rust; PDF and HTML become a preview
+ * ({path, dir, title, preview:'pdf'|'html', url, headings:[]}) shown in a frame.
+ */
+async function loadDoc(path) {
+  const kind = previewKind(path);
+  if (!kind) return api.renderFile(path);
+  const info = await api.pathInfo(path);
+  if (!info.isFile) throw new Error(info.exists ? 'Not a file' : 'File not found');
+  const url = kind === 'pdf' ? await api.localUrl(path) : await api.htmlPreviewUrl(path);
+  return { path, dir: dirname(path), title: basename(path), preview: kind, url, html: '', headings: [], frontMatter: null };
 }
 
 /**
@@ -178,7 +191,7 @@ async function openDoc(path, opts = {}) {
   const token = ++navToken;
   let doc;
   try {
-    doc = await api.renderFile(path);
+    doc = await loadDoc(path);
   } catch (e) {
     if (token !== navToken) return;
     const exists = (await api.pathInfo(path).catch(() => null))?.exists;
@@ -208,6 +221,7 @@ function display(doc, { hash = null, scrollTop = null, keepScroll = false } = {}
   state.doc = doc;
   state.path = doc.path;
   const top = keepScroll ? contentEl.scrollTop : null;
+  body.classList.toggle('has-preview', !!doc.preview);
   renderInto(docEl, doc);
   outline.set(doc.headings, docEl);
   body.classList.toggle('has-outline', doc.headings.length > 1);
@@ -242,7 +256,7 @@ async function reloadCurrent({ live = false } = {}) {
   const path = state.path;
   let doc;
   for (let attempt = 0; ; attempt++) {
-    try { doc = await api.renderFile(path); break; } catch (e) {
+    try { doc = await loadDoc(path); break; } catch (e) {
       // Editors often save by delete + rename; give the new file a moment to appear.
       if (live && attempt < 2) { await new Promise((r) => setTimeout(r, 250)); continue; }
       if (normPath(state.path) !== normPath(path)) return;
@@ -263,13 +277,14 @@ async function reloadCurrent({ live = false } = {}) {
 
 /** Re-insert the cached HTML (e.g. after a theme change so plugins render in the new theme). */
 function rerender() {
-  if (!state.doc) return;
+  if (!state.doc || state.doc.preview) return; // reloading the frame would lose the page's state
   display(state.doc, { keepScroll: true });
   runPlugins();
 }
 
 function showError(err) {
   docEl.hidden = false;
+  body.classList.remove('has-preview');
   renderError(docEl, err);
   contentEl.scrollTop = 0;
 }
@@ -388,7 +403,7 @@ async function handleLink(href, { newWindow = false } = {}) {
     }
     return api.openWindow(target);
   }
-  if (info.isMarkdown || isMarkdownPath(target)) {
+  if (info.isMarkdown || info.isPreview || isViewablePath(target)) {
     if (newWindow) return api.openWindow(target);
     return openDoc(target, { hash: frag });
   }
@@ -417,7 +432,7 @@ function watchCurrent() {
   if (!state.shown) return;
   let target = null;
   if (state.mode === 'folder') target = !state.path || isInside(state.path, state.root) ? state.root : state.path;
-  else if (state.mode === 'file') target = state.path;
+  else if (state.mode === 'file') target = state.doc?.preview === 'html' ? dirname(state.path) : state.path; // HTML: its assets too
   if (!target || target === state.watching) return;
   const wasOther = state.mode === 'folder' && state.watching && state.watching !== state.root && target === state.root;
   state.watching = target;
@@ -431,12 +446,14 @@ const flushFs = debounce(async () => {
   pendingFs.clear();
   const cur = state.path ? normPath(state.path) : null;
   const docChanged = paths.some((p) => normPath(p) === cur) ||
-    // images of the current document
-    (state.doc && paths.some((p) => /\.(png|jpe?g|gif|svg|webp|avif|bmp)$/i.test(p) && isInside(p, state.doc.dir)));
+    // images of the current document; for an HTML preview, any of its assets (css, js, data…)
+    (state.doc && paths.some((p) => isInside(p, state.doc.dir) && (state.doc.preview === 'html'
+      ? !isMarkdownPath(p) && /\.[a-z0-9]+$/i.test(p)
+      : !state.doc.preview && /\.(png|jpe?g|gif|svg|webp|avif|bmp)$/i.test(p))));
   if (state.mode === 'folder' && tree && state.watching === state.root) {
     let changed = false;
     for (const p of paths) {
-      if (isMarkdownPath(p)) {
+      if (isViewablePath(p)) {
         if (!tree.hasFile(p)) { if ((await api.pathInfo(p).catch(() => null))?.exists) { changed = true; break; } }
         else if (normPath(p) !== cur && !(await api.pathInfo(p).catch(() => null))?.exists) { changed = true; break; }
       } else if (tree.hasDir(p) || !/\.[^\\/]+$/.test(basename(p))) { changed = true; break; }
@@ -471,7 +488,7 @@ function plugins() {
 }
 
 async function runPlugins() {
-  if (!state.shown || !state.doc) return;
+  if (!state.shown || !state.doc || state.doc.preview) return;
   const m = await plugins();
   if (!m?.runPlugins || !state.doc) return;
   const docAtStart = state.doc;
@@ -680,7 +697,7 @@ function updateCrumbs() {
 
 function exportItems() {
   return [
-    { label: 'Export this document…', kbd: isMac ? '⌘E' : 'Ctrl+E', disabled: !state.doc, run: () => run('export-pdf') },
+    { label: 'Export this document…', kbd: isMac ? '⌘E' : 'Ctrl+E', disabled: !state.doc || !!state.doc.preview, run: () => run('export-pdf') },
     ...(state.mode === 'folder' ? [{ label: 'Export entire folder…', kbd: isMac ? '⇧⌘E' : 'Ctrl+Shift+E', run: () => run('export-folder-pdf') }] : []),
   ];
 }
@@ -723,16 +740,22 @@ async function run(cmd, btn) {
     case 'open-folder': return openDialog(true);
     case 'new-window': return api.openWindow();
     case 'quick-open': return quickOpen();
-    case 'export-pdf': if (state.path && state.doc) api.openExport(state.path, 'file').catch((e) => toast(String(e), 3000)); return;
+    case 'export-pdf':
+      if (state.doc?.preview) return toast('Only markdown documents can be exported', 2000);
+      if (state.path && state.doc) api.openExport(state.path, 'file').catch((e) => toast(String(e), 3000));
+      return;
     case 'export-folder-pdf':
       if (state.mode === 'folder') api.openExport(state.root, 'folder').catch((e) => toast(String(e), 3000));
+      else if (state.doc?.preview) toast('Only markdown documents can be exported', 2000);
       else if (state.path) api.openExport(state.path, 'file').catch((e) => toast(String(e), 3000));
       return;
     case 'export-menu': return withMenu((show) => show(btn || $('#btn-export'), exportItems()));
     case 'theme-menu': return withMenu((show) => show(btn || $('#btn-theme'), [{ note: 'Appearance' }, ...themeItems(), '-', { label: 'Cycle theme', kbd: isMac ? '⇧⌘D' : 'Ctrl+Shift+D', run: () => run('toggle-theme') }]));
     case 'more-menu': return withMenu((show) => show(btn || $('#btn-more'), moreItems()));
     case 'reveal': { const p = state.path || state.root; if (p) api.opener.revealItemInDir(p).catch((e) => toast(String(e), 3000)); return; }
-    case 'find': return (await getFind()).open();
+    case 'find':
+      if (state.doc?.preview) return toast(state.doc.preview === 'pdf' ? 'Click the PDF, then use its own search' : 'Find is not available in HTML previews', 2200);
+      return (await getFind()).open();
     case 'find-next': return (await getFind()).step(1);
     case 'find-prev': return (await getFind()).step(-1);
     case 'toggle-sidebar': return toggleSidebar();
@@ -766,10 +789,18 @@ async function quickOpen() {
   showQuickOpen(tree.files(), { current: state.path, onOpen: (p, o) => openDoc(p, o) });
 }
 
+const MD_EXTS = ['md', 'markdown', 'mdown', 'mkd', 'mkdn', 'mdwn', 'mdx'];
 async function openDialog(directory) {
   const opts = directory
     ? { directory: true, multiple: false, title: 'Open Folder' }
-    : { multiple: false, title: 'Open Markdown File', filters: [{ name: 'Markdown', extensions: ['md', 'markdown', 'mdown', 'mkd', 'mkdn', 'mdwn', 'mdx'] }] };
+    : {
+      multiple: false, title: 'Open File', filters: [
+        { name: 'Markdown, PDF & HTML', extensions: [...MD_EXTS, 'pdf', 'html', 'htm', 'xhtml'] },
+        { name: 'Markdown', extensions: MD_EXTS },
+        { name: 'PDF', extensions: ['pdf'] },
+        { name: 'HTML', extensions: ['html', 'htm', 'xhtml'] },
+      ],
+    };
   let p;
   try { p = await api.dialog.open(opts); } catch (e) { toast(String(e), 3000); return; }
   if (Array.isArray(p)) p = p[0];
@@ -843,8 +874,8 @@ function setupDragDrop() {
       body.classList.remove('drop-target');
       const paths = ev.payload.paths || [];
       const infos = await Promise.all(paths.map((p) => api.pathInfo(p).catch(() => null)));
-      const ok = paths.filter((p, i) => infos[i]?.exists && (infos[i].isDir || infos[i].isMarkdown));
-      if (!ok.length) { toast('Drop a markdown file or a folder', 2000); return; }
+      const ok = paths.filter((p, i) => infos[i]?.exists && (infos[i].isDir || infos[i].isMarkdown || infos[i].isPreview));
+      if (!ok.length) { toast('Drop a markdown, PDF or HTML file, or a folder', 2000); return; }
       let rest = ok;
       if (state.mode === 'welcome') { openTarget(ok[0]); rest = ok.slice(1); }
       for (const p of rest) api.openWindow(p);

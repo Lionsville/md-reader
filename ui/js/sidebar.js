@@ -1,5 +1,5 @@
 // Folder tree (sidebar): lazy rendering of expanded nodes only, filter, keyboard navigation.
-import { icon, store, escapeHtml, normPath, relativePath } from './util.js';
+import { icon, store, escapeHtml, normPath, relativePath, previewKind, isMarkdownPath } from './util.js';
 
 export function createTree(treeEl, filterEl, { rootPath, onOpen }) {
   const expKey = 'mdr.expanded:' + rootPath;
@@ -75,7 +75,7 @@ export function createTree(treeEl, filterEl, { rootPath, onOpen }) {
     rows = [];
     collect(root, 0, rows);
     if (!rows.length) {
-      treeEl.innerHTML = `<div class="tree-empty">${filter ? 'No matching files' : 'No markdown files'}</div>`;
+      treeEl.innerHTML = `<div class="tree-empty">${filter ? 'No matching files' : 'No documents'}</div>`;
       treeEl.removeAttribute('aria-activedescendant');
       return;
     }
@@ -89,7 +89,7 @@ export function createTree(treeEl, filterEl, { rootPath, onOpen }) {
       } else {
         const act = np === active;
         html += `<div class="ti file${act ? ' active' : ''}" id="ti-${i}" role="treeitem" aria-level="${depth + 1}" aria-selected="${act}" data-i="${i}" style="--depth:${depth}" title="${escapeHtml(relativePath(node.path, rootPath))}">` +
-          icon('doc', 'i ic') + `<span class="name">${label(node.name)}</span></div>`;
+          icon(previewKind(node.name) || 'doc', 'i ic') + `<span class="name">${label(node.name)}</span></div>`;
       }
     });
     treeEl.innerHTML = html;
@@ -204,9 +204,13 @@ export function createTree(treeEl, filterEl, { rootPath, onOpen }) {
     files: () => allFiles,
     hasFile: (p) => filePaths.has(normPath(p)),
     hasDir: (p) => dirPaths.has(normPath(p)),
-    firstFile: () => allFiles[0]?.path || null,
-    /** First file at or below directory `dir`. */
-    firstFileIn: (dir) => allFiles.find((f) => normPath(f.path).startsWith(normPath(dir) + '/'))?.path || null,
+    /** First file to show when the folder opens: markdown preferred over PDF/HTML. */
+    firstFile: () => (allFiles.find((f) => isMarkdownPath(f.name)) || allFiles[0])?.path || null,
+    /** First file at or below directory `dir` (markdown preferred). */
+    firstFileIn: (dir) => {
+      const inDir = allFiles.filter((f) => normPath(f.path).startsWith(normPath(dir) + '/'));
+      return (inDir.find((f) => isMarkdownPath(f.name)) || inDir[0])?.path || null;
+    },
     focus: () => { treeEl.focus(); markFocus(); },
     focusFilter: () => { filterEl?.focus(); filterEl?.select(); },
   };

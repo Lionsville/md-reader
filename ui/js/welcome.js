@@ -55,7 +55,7 @@ export function renderWelcome(el, actions, version) {
       h('button', { class: 'btn', type: 'button', html: icon('folder') + '<span>Open Folder…</span>', title: `${mod}${isMac ? '⇧' : '+Shift+'}O`, onclick: actions.openFolder }),
     ]),
     h('section', { class: 'wl-section' }, [h('h2', { text: 'Recent' }), recent.length ? list : empty()]),
-    h('p', { class: 'wl-hint', html: `Drop a markdown file or folder anywhere on this window to open it.<br><kbd>${mod}</kbd> <kbd>O</kbd> open file · <kbd>${mod}</kbd> <kbd>${isMac ? '⇧' : 'Shift'}</kbd> <kbd>O</kbd> open folder` }),
+    h('p', { class: 'wl-hint', html: `Drop a markdown, PDF or HTML file, or a folder, anywhere on this window to open it.<br><kbd>${mod}</kbd> <kbd>O</kbd> open file · <kbd>${mod}</kbd> <kbd>${isMac ? '⇧' : 'Shift'}</kbd> <kbd>O</kbd> open folder` }),
   ]);
   el.innerHTML = '';
   el.append(h('div', { class: 'welcome' }, inner));
